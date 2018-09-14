@@ -1,16 +1,25 @@
 <script>
 import NavBar from '@components/nav-bar'
+import InfoBar from '@components/infoBar'
 
 export default {
-  components: { NavBar },
+  components: { NavBar, InfoBar },
 }
 </script>
 
 <template>
-  <div :class="$style.container">
-    <NavBar />
-    <slot />
-  </div>
+  <VContainer
+    fill-height
+    fluid
+    pa-0
+  >
+    <VLayout
+      column
+    >
+      <slot />
+      <NavBar />
+    </VLayout>
+  </VContainer>
 </template>
 
 <style lang="scss" module>

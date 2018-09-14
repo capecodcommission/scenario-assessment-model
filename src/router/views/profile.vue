@@ -25,11 +25,24 @@ export default {
 
 <template>
   <Layout>
-    <h1>
-      <BaseIcon name="user" />
-      {{ user.name }}
-      Profile
-    </h1>
-    <pre>{{ user }}</pre>
+    <VFlex
+      d-flex
+      fill-height
+    >
+      <VCard width="50%">
+        <VCardTitle
+          primary-title
+          class="justify-center"
+        >
+          <h1>
+            <BaseIcon name="user" />
+            {{ user.name }}
+          </h1>
+        </VCardTitle>
+      </VCard>
+      <VCard width="50%">
+        {{ user }}
+      </VCard>
+    </VFlex>
   </Layout>
 </template>

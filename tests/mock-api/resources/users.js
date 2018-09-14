@@ -14,6 +14,55 @@ module.exports = {
       password: 'password',
       name: 'User One',
     },
+    {
+      id: 3,
+      username: 'mcarloni',
+      password: 'password',
+      name: 'Mario',
+      addtlProps: {
+        age: 30,
+        otherThings: {
+          scenarios: [
+            {
+              id: 2879,
+              treatments: [
+                {
+                  id: 2948,
+                  name: 'Fertilizer Management',
+                  nitrogenRemovedKG: 1140,
+                },
+                {
+                  id: 2949,
+                  name: 'Permeable Reactive Barriers',
+                  nitrogenRemovedKG: 578,
+                },
+              ],
+            },
+            {
+              id: 2880,
+              treatments: [
+                {
+                  id: 2950,
+                  name: 'Urine Diverting Toilets',
+                  nitrogenRemovedKG: 2850,
+                },
+                {
+                  id: 2951,
+                  name: 'Aquaculture Above Estuary Bed',
+                  nitrogenRemovedKG: 3780,
+                },
+              ],
+            },
+          ],
+        },
+      },
+    },
+    {
+      id: 4,
+      username: 'sgoulet',
+      password: 'password',
+      name: 'Shawn',
+    },
   ].map(user => {
     return {
       ...user,

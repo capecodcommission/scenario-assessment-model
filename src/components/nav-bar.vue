@@ -37,17 +37,30 @@ export default {
 </script>
 
 <template>
-  <ul :class="$style.container">
-    <NavBarRoutes :routes="persistentNavRoutes" />
-    <NavBarRoutes
-      v-if="loggedIn"
-      :routes="loggedInNavRoutes"
-    />
-    <NavBarRoutes
-      v-else
-      :routes="loggedOutNavRoutes"
-    />
-  </ul>
+  <VFlex>
+    <VFooter
+      height="auto"
+      color="primary lighten-1"
+    >
+      <VLayout
+        justify-center
+        row
+        wrap
+      >
+        <ul :class="$style.container">
+          <NavBarRoutes :routes="persistentNavRoutes" />
+          <NavBarRoutes
+            v-if="loggedIn"
+            :routes="loggedInNavRoutes"
+          />
+          <NavBarRoutes
+            v-else
+            :routes="loggedOutNavRoutes"
+          />
+        </ul>
+      </VLayout>
+    </VFooter>
+  </VFlex>
 </template>
 
 <style lang="scss" module>

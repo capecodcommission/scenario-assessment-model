@@ -46,36 +46,61 @@ export default {
 
 <template>
   <Layout>
-    <form
-      :class="$style.form"
-      @submit.prevent="tryToLogIn"
+    <VFlex
+      d-flex
+      fill-height
     >
-      <BaseInput
-        v-model="username"
-        name="username"
-      />
-      <BaseInput
-        v-model="password"
-        name="password"
-        type="password"
-      />
-      <BaseButton
-        :disabled="tryingToLogIn"
-        type="submit"
-      >
-        <BaseIcon
-          v-if="tryingToLogIn"
-          name="sync"
-          spin
+      <VCard width="50%">
+        <VCardTitle
+          primary-title
+          class="justify-center"
+        >
+          <h1>(CCC) Scenario Assessment Model</h1>
+        </VCardTitle>
+        <VImg
+          height="500px"
+          src="https://scontent.fzty2-1.fna.fbcdn.net/v/t1.0-9/969642_607269389291155_505660257_n.jpg?_nc_cat=0&oh=e821cd6a6eaca68a995fdfa11a9226d0&oe=5C17CB12"
+          contain
         />
-        <span v-else>
-          Log in
-        </span>
-      </BaseButton>
-      <p v-if="authError">
-        There was an error logging in to your account.
-      </p>
-    </form>
+      </VCard>
+    </VFlex>
+    <VFlex
+      d-flex
+      fill-height
+    >
+      <VCard>
+        <form
+          :class="$style.form"
+          @submit.prevent="tryToLogIn"
+        >
+          <BaseInput
+            v-model="username"
+            name="username"
+          />
+          <BaseInput
+            v-model="password"
+            name="password"
+            type="password"
+          />
+          <BaseButton
+            :disabled="tryingToLogIn"
+            type="submit"
+          >
+            <BaseIcon
+              v-if="tryingToLogIn"
+              name="sync"
+              spin
+            />
+            <span v-else>
+              Log in
+            </span>
+          </BaseButton>
+          <p v-if="authError">
+            There was an error logging in to your account.
+          </p>
+        </form>
+      </VCard>
+    </VFlex>
   </Layout>
 </template>
 

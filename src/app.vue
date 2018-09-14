@@ -13,20 +13,20 @@ export default {
 </script>
 
 <template>
-  <div id="app">
-    <!--
+  <!--
     Even when routes use the same component, treat them
     as distinct and create the component again.
     -->
+  <VApp>
     <router-view :key="$route.fullPath" />
-  </div>
+  </VApp>
 </template>
 
 <!-- This should generally be the only global CSS in the app. -->
 <style lang="scss">
 // Allow element/type selectors, because this is global CSS.
 // stylelint-disable selector-max-type, selector-class-pattern
-
+@import '../node_modules/bootstrap/scss/bootstrap.scss';
 // Normalize default styles across browsers,
 // https://necolas.github.io/normalize.css/
 @import '~normalize.css/normalize.css';
