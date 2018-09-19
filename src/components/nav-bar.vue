@@ -1,6 +1,7 @@
 <script>
 import { authComputed } from '@state/helpers'
 import NavBarRoutes from './nav-bar-routes.vue'
+import store from '@state/store'
 
 export default {
   components: { NavBarRoutes },
@@ -8,8 +9,9 @@ export default {
     return {
       persistentNavRoutes: [
         {
-          name: 'home',
+          name: 'scenario-home',
           title: 'Home',
+          params: { scenario: store.state.users.scenario },
         },
       ],
       loggedInNavRoutes: [

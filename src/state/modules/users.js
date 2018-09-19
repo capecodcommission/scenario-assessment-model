@@ -2,6 +2,7 @@ import axios from 'axios'
 
 export const state = {
   cached: [],
+  scenario: '',
 }
 
 export const getters = {}
@@ -10,18 +11,34 @@ export const mutations = {
   CACHE_USER(state, newUser) {
     state.cached.push(newUser)
   },
+  CACHE_SCENARIO(state, scenario) {
+    state.scenario = scenario
+  },
+  NULLIFY_SCENARIO(state) {
+    state.scenario = null
+  },
 }
 
 export const actions = {
+  updateScenarioID({ commit, state, rootState }, { scenario }) {
+    commit('CACHE_SCENARIO', scenario)
+  },
+
+  nullifyScenario({ commit, state, rootState }) {
+    commit('NULLIFY_SCENARIO')
+  },
+
   fetchUser({ commit, state, rootState }, { username }) {
     // 1. Check if we already have the user as a current user.
     const { currentUser } = rootState.auth
+
     if (currentUser && currentUser.username === username) {
       return Promise.resolve(currentUser)
     }
 
     // 2. Check if we've already fetched and cached the user.
     const matchedUser = state.cached.find(user => user.name === username)
+
     if (matchedUser) {
       return Promise.resolve(currentUser)
     }

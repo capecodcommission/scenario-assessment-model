@@ -5,6 +5,36 @@ export default [
     path: '/',
     name: 'home',
     component: () => lazyLoadView(import('@views/home')),
+    beforeEnter(routeTo, routeFrom, next) {
+      if (
+        isNaN(store.state.users.scenario) &&
+        store.state.users.scenario.length === 4
+      ) {
+        store.dispatch('users/nullifyScenario')
+        next()
+      } else {
+        next()
+      }
+    },
+  },
+  {
+    path: '/home/:scenario',
+    name: 'scenario-home',
+    component: () => lazyLoadView(import('@views/home')),
+    props: route => ({ scenario: store.state.users.scenario }),
+    beforeEnter(routeTo, routeFrom, next) {
+      if (
+        !isNaN(routeTo.params.scenario) &&
+        routeTo.params.scenario.length === 4
+      ) {
+        store.dispatch('users/updateScenarioID', {
+          scenario: routeTo.params.scenario,
+        })
+        next()
+      } else {
+        next({ name: '404' })
+      }
+    },
   },
   {
     path: '/login',
@@ -28,7 +58,10 @@ export default [
     meta: {
       authRequired: true,
     },
-    props: route => ({ user: store.state.auth.currentUser }),
+    props: route => ({
+      user: store.state.auth.currentUser,
+      scenario: store.state.users.scenario,
+    }),
   },
   {
     path: '/profile/:username',
@@ -56,7 +89,10 @@ export default [
     },
     // Set the user from the route params, once it's set in the
     // beforeEnter route guard.
-    props: route => ({ user: route.params.user }),
+    props: route => ({
+      user: route.params.user,
+      scenario: store.state.users.scenario,
+    }),
   },
   {
     path: '/logout',
@@ -80,6 +116,11 @@ export default [
     // Allows props to be passed to the 404 page through route
     // params, such as `resource` to define what wasn't found.
     props: true,
+    // beforeEnter(routeTo, routeFrom, next) {
+    //   console.log(routeTo)
+    //   console.log(routeFrom)
+    //   next()
+    // },
   },
   // Redirect any unmatched routes to the 404 page. This may
   // require some server configuration to work in production:

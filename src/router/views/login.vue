@@ -2,6 +2,7 @@
 import Layout from '@layouts/main'
 import { authMethods } from '@state/helpers'
 import appConfig from '@src/app.config'
+import store from '@state/store'
 
 export default {
   page: {
@@ -33,7 +34,12 @@ export default {
           this.tryingToLogIn = false
 
           // Redirect to the originally requested page, or to the home page
-          this.$router.push(this.$route.query.redirectFrom || { name: 'home' })
+          this.$router.push(
+            this.$route.query.redirectFrom || {
+              name: 'scenario-home',
+              params: { scenario: store.state.users.scenario },
+            }
+          )
         })
         .catch(error => {
           this.tryingToLogIn = false

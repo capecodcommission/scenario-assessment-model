@@ -19,6 +19,11 @@ export default {
       type: Object,
       required: true,
     },
+    scenario: {
+      type: String,
+      required: false,
+      default: null,
+    },
   },
 }
 </script>
@@ -42,6 +47,7 @@ export default {
       </VCard>
       <VCard width="50%">
         {{ user }}
+        {{ scenario }}
       </VCard>
     </VFlex>
   </Layout>

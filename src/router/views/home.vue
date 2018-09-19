@@ -3,6 +3,8 @@ import Layout from '@layouts/main'
 import esriLoader from 'esri-loader'
 import { ChartSunburst } from 'vue-d2b'
 import { authComputed } from '@state/helpers'
+// import { router } from 'vue-router'
+import store from '@state/store'
 
 export default {
   page: {
@@ -12,63 +14,75 @@ export default {
   components: { Layout, ChartSunburst },
   data() {
     return {
+      rules: {
+        required: value => !!value || 'Required.',
+        counter: value => value.length === 4 || 'Must be 4 characters',
+        email: value => {
+          const pattern = /^\d+$/
+          return pattern.test(value) || 'ID must only contain numbers'
+        },
+      },
       dialog: true,
-      scenarioInput: '1234',
+      scenarioInput: '',
       chartConfig: function(chart) {
         chart.chartFrame().size(function(d) {
           return d.x
         })
       },
+      price: [110, 440],
       chartData: {
-        label: 'root',
+        label: 'weight',
         children: [
           {
-            label: 'child 1',
+            label: 'community',
             children: [
               {
-                label: 'child 1-1',
-                size: 10,
+                label: 'growth compatability',
+                size: 1,
               },
               {
-                label: 'child 1-2',
-                children: [
-                  {
-                    label: 'child 1-2-1',
-                    size: 5,
-                  },
-                  {
-                    label: 'child 1-3-1',
-                    size: 8,
-                  },
-                ],
+                label: 'construction and o&m jobs created',
+                size: 3,
               },
               {
-                label: 'child 1-3',
-                children: [
-                  {
-                    label: 'child 1-3-1',
-                    children: [
-                      {
-                        label: 'child 1-3-1-1',
-                        size: 2,
-                      },
-                      {
-                        label: 'child 1-3-1-2',
-                        size: 5,
-                      },
-                    ],
-                  },
-                  {
-                    label: 'child 1-3-2',
-                    size: 8,
-                  },
-                ],
+                label: 'property value loss avoided',
+                size: 5,
               },
             ],
           },
           {
-            label: 'child 2',
-            size: 25,
+            label: 'cost',
+            children: [
+              {
+                label: 'capital cost',
+                size: 7,
+              },
+              {
+                label: 'operation & maintenance cost',
+                size: 9,
+              },
+              {
+                label: 'life cycle cost',
+                size: 11,
+              },
+            ],
+          },
+          {
+            label: 'confidence',
+            children: [
+              {
+                label: 'useful number of years',
+                size: 13,
+              },
+              {
+                label: 'variability in performance',
+                size: 15,
+              },
+              {
+                label: 'resiliency to flooding',
+                size: 17,
+              },
+            ],
           },
         ],
       },
@@ -76,6 +90,16 @@ export default {
   },
   computed: {
     ...authComputed,
+    fullScenario() {
+      return this.$route.params.scenario
+    },
+  },
+  props: {
+    scenario: {
+      type: String,
+      required: false,
+      default: null,
+    },
   },
   mounted: function() {
     this.startMap()
@@ -103,6 +127,24 @@ export default {
           console.error(err)
         })
     },
+    toggleDialog() {
+      if (!isNaN(this.scenarioInput) && this.scenarioInput.length === 4) {
+        this.dialog = !this.dialog
+
+        store.dispatch('users/updateScenarioID', {
+          scenario: this.scenarioInput,
+        })
+
+        this.$router.push({
+          name: 'scenario-home',
+          params: { scenario: this.scenarioInput },
+        })
+      }
+    },
+    showSliderVal(val) {
+      this.chartData.children[0].children[0].size = val[0]
+      this.chartData.children[1].children[0].size = val[1]
+    },
   },
 }
 </script>
@@ -110,7 +152,7 @@ export default {
 <template>
   <Layout>
     <VDialog
-      v-if="!loggedIn"
+      v-if="!$store.state.users.scenario"
       v-model="dialog"
       content-class="text-center"
       persistent
@@ -130,12 +172,14 @@ export default {
             v-model="scenarioInput"
             label="Enter Scenario ID"
             box
-            @keyup.enter="dialog = !dialog"
+            :rules="[rules.required, rules.email, rules.counter]"
+            @keyup.enter="toggleDialog"
           />
         </VCardActions>
       </VCard>
     </VDialog>
     <VFlex
+      v-if="$store.state.users.scenario"
       d-flex
     >
       <VCard
@@ -147,11 +191,14 @@ export default {
           primary-title
           class="justify-center"
         >
-          <h1>SUMMARY SCENARIO INFO</h1>
+          <h1>
+            Scenario ID: {{ $store.state.users.scenario }}
+          </h1>
         </VCardTitle>
       </VCard>
     </VFlex>
     <VFlex
+      v-if="$store.state.users.scenario"
       d-flex
       fill-height
     >
@@ -169,6 +216,14 @@ export default {
         <ChartSunburst
           :data="chartData"
         />
+        <!-- <VRangeSlider
+          v-model="price"
+          color="black"
+          :max="100"
+          :min="1"
+          :step="1"
+          @end="showSliderVal"
+        /> -->
       </VCard>
       <VCard
         color="white"
