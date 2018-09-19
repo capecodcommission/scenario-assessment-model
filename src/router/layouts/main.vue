@@ -1,9 +1,8 @@
 <script>
 import NavBar from '@components/nav-bar'
-import InfoBar from '@components/infoBar'
 
 export default {
-  components: { NavBar, InfoBar },
+  components: { NavBar },
 }
 </script>
 
@@ -11,7 +10,6 @@ export default {
   <VContainer
     fill-height
     fluid
-    pa-0
   >
     <VLayout
       column
@@ -24,10 +22,4 @@ export default {
 
 <style lang="scss" module>
 @import '@design';
-
-.container {
-  min-width: $size-content-width-min;
-  max-width: $size-content-width-max;
-  margin: 0 auto;
-}
 </style>

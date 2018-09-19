@@ -3,7 +3,6 @@ import Layout from '@layouts/main'
 import esriLoader from 'esri-loader'
 import { ChartSunburst } from 'vue-d2b'
 import { authComputed } from '@state/helpers'
-import $ from 'jquery'
 
 export default {
   page: {
@@ -16,8 +15,8 @@ export default {
       dialog: true,
       scenarioInput: '1234',
       chartConfig: function(chart) {
-        chart.chartFrame().size({
-          // height: $('.vue-d2b-container').height() - 500,
+        chart.chartFrame().size(function(d) {
+          return d.x
         })
       },
       chartData: {
@@ -155,7 +154,6 @@ export default {
     <VFlex
       d-flex
       fill-height
-      overflow-hidden
     >
       <VCard
         width="60%"
@@ -168,12 +166,9 @@ export default {
             CHART
           </h1>
         </VCardTitle>
-        <div :class="$style.chartDiv">
-          <ChartSunburst
-            :data="chartData"
-            :config="chartConfig"
-          />
-        </div>
+        <ChartSunburst
+          :data="chartData"
+        />
       </VCard>
       <VCard
         color="white"
@@ -188,39 +183,32 @@ export default {
         </VCardTitle>
       </VCard>
       <VCard
+        id="viewDiv"
+        class="viewDiv"
         width="30%"
-      >
-        <VCardTitle
-          primary-title
-          class="justify-center"
-        >
-          <h1>LOCUS MAP</h1>
-        </VCardTitle>
-        <div
-          id="viewDiv"
-          :class="$style.viewDiv"
-        />
-      </VCard>
+      />
     </VFlex>
   </Layout>
 </template>
 
-<style module>
-/* @import '@design'; */
+<style lang = 'scss'>
+@import '@design';
 
 .viewDiv {
   width: 100%;
   height: 100%;
-  overflow: hidden;
 }
 
-.chartDiv {
+/* .chartDiv {
   width: 100%;
-  height: 85%;
-  overflow: hidden;
+  height: 100%;
+} */
+
+.vue-d2b-container {
+  height: 50%;
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 1000px) {
   .d2b-breadcrumbs-frame {
     display: none;
     width: 0 !important;
