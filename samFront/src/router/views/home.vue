@@ -5,6 +5,7 @@ import { ChartSunburst } from 'vue-d2b'
 import { authComputed } from '@state/helpers'
 // import { router } from 'vue-router'
 import store from '@state/store'
+import gql from 'graphql-tag'
 
 export default {
   page: {
@@ -12,8 +13,40 @@ export default {
     meta: [{ name: 'description', content: 'TestView' }],
   },
   components: { Layout, ChartSunburst },
+  apollo: {
+    apolloTest: {
+      query: gql`query myQuery($id: String) {
+        getScenario(id: $id) {
+          getID
+          getCreatedBy
+          scenarioTreatments {
+            treatmentID
+            treatmentName
+          }
+        }
+      }`,
+      // query: gql`query { getMessage(id: "78bbd9fa0cdb14420ece") {
+      //   author
+      //   content
+      // }}`,
+      variables() {
+        return {
+          id: "630"
+        }
+      },
+      update: function(data) {
+        return data
+      }
+    }
+  },
+  watch: {
+    apolloTest: function(x) {
+      console.log(x)
+    }
+  },
   data() {
     return {
+      apolloTest: '',
       rules: {
         required: value => !!value || 'Required.',
         counter: value => value.length === 4 || 'Must be 4 characters',
@@ -222,6 +255,10 @@ export default {
           class="pa-0"
         >
           <h5><strong>{{ scenarioID }}</strong></h5>
+          <h5><strong>Treatments</strong></h5>
+          <div v-for = "treatment in apolloTest.getScenario.scenarioTreatments">
+            <h6>{{treatment.treatmentName}}</h6>
+          </div>
         </VCardText>
       </VCard>
       <VCard
