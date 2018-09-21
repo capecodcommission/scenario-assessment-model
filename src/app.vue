@@ -26,7 +26,6 @@ export default {
 <style lang="scss">
 // Allow element/type selectors, because this is global CSS.
 // stylelint-disable selector-max-type, selector-class-pattern
-@import '../node_modules/bootstrap/scss/bootstrap.scss';
 // Normalize default styles across browsers,
 // https://necolas.github.io/normalize.css/
 @import '~normalize.css/normalize.css';

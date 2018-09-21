@@ -22,6 +22,27 @@ export default {
           return pattern.test(value) || 'ID must only contain numbers'
         },
       },
+      scenarioID: '1234',
+      scenarioMunicipalities: ['Barnstable', 'Sandwich', 'Mashpee'],
+      scenarioSubEmbayments: [
+        'Princes Cove',
+        'Warrens Cove',
+        'Upper North Bay',
+        'Lower North Bay',
+        'Cotuit Bay',
+        'West Bay',
+        'Eel Pond',
+      ],
+      percentageNRemovedToMeetTMDL: '97%',
+      scenarioTechnologies: [
+        'Fertilizer Management',
+        'Stormwater Management',
+        'Permeable Reactive Barrier (PRB)',
+        'Dredging/Inlet Widening',
+        'Ecotoilets',
+        'Aquaculture/Oyster Beds',
+      ],
+      samScenarioCreated: false,
       dialog: true,
       scenarioInput: '',
       chartConfig: function(chart) {
@@ -192,14 +213,133 @@ export default {
       >
         <VCardTitle
           primary-title
-          class="justify-center"
+          class="pa-0 justify-center"
+          word-wrap="break-word"
         >
-          <h1>
-            Scenario ID: {{ $store.state.users.scenario }}
-          </h1>
+          <h3>Scenario ID</h3>
         </VCardTitle>
+        <VCardText
+          class="pa-0"
+        >
+          <h5><strong>{{ scenarioID }}</strong></h5>
+        </VCardText>
+      </VCard>
+      <VCard
+        color="grey"
+        dark
+        width="100%"
+        class="scroll-y"
+      >
+        <VCardTitle
+          primary-title
+          class="pa-0 justify-center"
+          word-wrap="break-word"
+        >
+          <h3>Municipalities</h3>
+        </VCardTitle>
+        <VCardText
+          v-for="municipality in scenarioMunicipalities"
+          :key="municipality"
+          class="pa-0"
+        >
+          <h5><strong>{{ municipality }}</strong></h5>
+        </VCardText>
+      </VCard>
+      <VCard
+        color="grey"
+        dark
+        width="100%"
+        class="scroll-y"
+      >
+        <VCardTitle
+          primary-title
+          class="pa-0 justify-center"
+          word-wrap="break-word"
+        >
+          <h3>Subembayments</h3>
+        </VCardTitle>
+        <VCardText
+          v-for="subEmbayment in scenarioSubEmbayments"
+          :key="subEmbayment"
+          primary-title
+          class="pa-0"
+        >
+          <h5><strong>{{ subEmbayment }}</strong></h5>
+        </VCardText>
+      </VCard>
+      <VCard
+        color="grey"
+        dark
+        width="100%"
+      >
+        <VCardTitle
+          primary-title
+          class="pa-0 justify-center"
+          word-wrap="break-word"
+        >
+          <h3>Percentage N Removed to Meet TMDL</h3>
+        </VCardTitle>
+        <VCardText
+          primary-title
+          class="pa-0"
+        >
+          <h5><strong>{{ percentageNRemovedToMeetTMDL }}</strong></h5>
+        </vcardtext>
+      </VCard>
+      <VCard
+        color="grey"
+        dark
+        width="100%"
+        class="scroll-y"
+      >
+        <VCardTitle
+          primary-title
+          class="pa-0 justify-center"
+          word-wrap="break-word"
+        >
+          <h3>Wastewater Technologies</h3>
+        </VCardTitle>
+        <VCardText
+          v-for="technology in scenarioTechnologies"
+          :key="technology"
+          primary-title
+          class="pa-0"
+        >
+          <h5><strong>{{ technology }}</strong></h5>
+        </VCardText>
+      </VCard>
+      <VCard
+        color="grey"
+        dark
+        width="100%"
+      >
+        <VBtn
+          v-if="!samScenarioCreated"
+          small
+          color="indigo"
+          dark
+          class="ma-5"
+          @click="samScenarioCreated = !samScenarioCreated"
+        >
+          <VIcon dark>
+            save
+          </VIcon>
+        </VBtn>
+        <VBtn
+          v-else
+          small
+          color="green"
+          dark
+          class="ma-5"
+        >
+          <VIcon dark>
+            check
+          </VIcon>
+        </VBtn>
       </VCard>
     </VFlex>
+
+    <!-- when implementing v-if="dialog === false" in VFlex below, map not rendering -->
     <VFlex
       v-if="$store.state.users.scenario"
       d-flex
@@ -256,11 +396,6 @@ export default {
   width: 100%;
   height: 100%;
 }
-
-/* .chartDiv {
-  width: 100%;
-  height: 100%;
-} */
 
 .vue-d2b-container {
   height: 50%;
