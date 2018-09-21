@@ -143,7 +143,10 @@ export default {
     },
     showSliderVal(val) {
       this.chartData.children[0].children[0].size = val[0]
-      this.chartData.children[1].children[0].size = val[1]
+      this.chartData.children[0].children[1].size = val[1]
+      this.chartData.children[0].children[2].size = val[1] - val[0]
+
+      console.log(val[0], val[1], val[1] - val[0])
     },
   },
 }
@@ -216,14 +219,14 @@ export default {
         <ChartSunburst
           :data="chartData"
         />
-        <!-- <VRangeSlider
+        <VRangeSlider
           v-model="price"
           color="black"
           :max="100"
           :min="1"
           :step="1"
           @end="showSliderVal"
-        /> -->
+        />
       </VCard>
       <VCard
         color="white"
