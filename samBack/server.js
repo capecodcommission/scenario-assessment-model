@@ -24,11 +24,34 @@ var wmvp3_DBConfig = {
   }
 };
 
+var tm_DBConfig = {
+  user: 'DBAccess',
+  password: 'Acce$$DB',
+  server: '10.10.1.174',
+  port: '65335',
+  database: 'Tech_Matrix',
+  stream: true,
+  requestTimeout: 300000,
+  connectionTimeout: 300000,
+  pool: {
+    max: 100,
+    min: 0,
+    idleTimeoutMillis: 300000
+  }
+};
+
 var wmvp3Connect = new sql.ConnectionPool(wmvp3_DBConfig)
+var tmConnect = new sql.ConnectionPool(tm_DBConfig)
 
 wmvp3Connect.connect(err => {
   if (err) {
     console.log("wmvp3Connect error -->", err)
+  }
+})
+
+tmConnect.connect(err => {
+  if (err) {
+    console.log("tmConnect error -->", err)
   }
 })
 
@@ -43,14 +66,17 @@ var executeQuery = function (query, connection) {
 const typeDefs = `
 
 type Scenario {
-  getID: String!
+  getID: ID!
   getCreatedBy: String
+  getNloadSums: Float
+  getProjNLoadSum: Float
   scenarioTreatments: [Treatment]
 }
 
 type Treatment {
-  treatmentID: String
-  treatmentName: String
+  treatmentTypeID: String!
+  nLoadReduction: Float
+  projCostKG: Float
 }
 
 type Query {
@@ -67,11 +93,18 @@ var schema = buildSchema(typeDefs);
 
 class Scenario {
 
-  constructor(id, createdBy, treatments) {
+  constructor(id, createdBy, treatments, nReducFert, nReducSW, nReducSeptic, nReducGW, nReducAtt,  nReducInEmbay, typeIDArray) {
 
     this.id = id;
     this.createdBy = createdBy;
     this.treatments = treatments;
+    this.nReducFert = nReducFert
+    this.nReducSW = nReducSW
+    this.nReducSeptic = nReducSeptic
+    this.nReducGW = nReducGW
+    this.nReducAtt = nReducAtt
+    this.nReducInEmbay = nReducInEmbay
+    this.typeIDArray = typeIDArray
   }
 
     getScenarioData() {
@@ -88,7 +121,14 @@ class Scenario {
 
       return this.treatments.map((i) => {
 
-        return new Treatment(i.TreatmentID, i.TreatmentType_Name)
+        var newTreatment = new Treatment(i.TreatmentType_ID, i.Nload_Reduction)
+
+        return newTreatment.getTechMatrixData().then((j) => {
+
+          newTreatment.projCostKG = j.recordset[0].ProjectCost_kg
+
+          return newTreatment
+        })
       })
     }
 
@@ -99,24 +139,45 @@ class Scenario {
     getCreatedBy() {
       return this.createdBy
     }
+
+    getNloadSums() {
+      return this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
+    }
+
+    getProjNLoadSum() {
+      
+      return this.treatments.reduce((acc, i) => {
+        
+        return acc + i.Nload_Reduction
+      }, 0) 
+    }
   }
 
   class Treatment {
 
-    constructor(treatmentID, name) {
+    constructor(treatmentTypeID, nLoadReduction, projCostKG) {
 
-      this.treatmentID = treatmentID
-      this.name = name
+      this.treatmentTypeID = treatmentTypeID
+      this.nLoadReduction = nLoadReduction
+      this.projCostKG = projCostKG
+    }
+
+    getTechMatrixData() {
+      return executeQuery('select * from Technology_Matrix where Technology_ID = ' + this.treatmentTypeID + ' and Show_In_wMVP != 0', tmConnect)
     }
       
-      treatmentID() {
-        return this.treatmentID
-      }
-  
-      treatmentName() {
-        return this.name
-      }
+    nLoadReduction() {
+      return this.nLoadReduction
     }
+
+    treatmentTypeID() {
+      return this.treatmentTypeID
+    }
+
+    projCostKG() {
+      return this.projCostKG
+    }
+  }
 
 // Maps username to content
 var fakeDatabase = {};
@@ -130,6 +191,12 @@ var root = {
     return a.getScenarioData().then((i) => {
 
       a.createdBy = i.recordset[0].CreatedBy
+      a.nReducAtt = i.recordset[0].Nload_Reduction_Attenuation
+      a.nReducFert = i.recordset[0].Nload_Reduction_Fert
+      a.nReducGW = i.recordset[0].Nload_Reduction_GW
+      a.nReducInEmbay = i.recordset[0].Nload_Reduction_InEmbay
+      a.nReducSeptic = i.recordset[0].Nload_Reduction_Septic
+      a.nReducSW = i.recordset[0].Nload_Reduction_SW
 
       return a.getTreatmentsData().then((j) => {
 
