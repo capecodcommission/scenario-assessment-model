@@ -93,7 +93,7 @@ var schema = buildSchema(typeDefs);
 
 class Scenario {
 
-  constructor(id, createdBy, treatments, nReducFert, nReducSW, nReducSeptic, nReducGW, nReducAtt,  nReducInEmbay, typeIDArray) {
+  constructor(id, createdBy, treatments, nReducFert, nReducSW, nReducSeptic, nReducGW, nReducAtt,  nReducInEmbay, typeIDArray, techArray) {
 
     this.id = id;
     this.createdBy = createdBy;
@@ -105,6 +105,7 @@ class Scenario {
     this.nReducAtt = nReducAtt
     this.nReducInEmbay = nReducInEmbay
     this.typeIDArray = typeIDArray
+    this.techArray = techArray
   }
 
     getScenarioData() {
@@ -115,6 +116,12 @@ class Scenario {
     getTreatmentsData() {
 
       return executeQuery('select * from CapeCodMA.Treatment_Wiz where ScenarioID = ' + this.id, wmvp3Connect)
+    }
+
+    getTechMatrixData() {
+
+      var queryTypeString = this.typeIDArray.map(i => {return "'" + i + "'"}).join(',')
+      return executeQuery('select * from Technology_Matrix where Technology_ID in (' + queryTypeString + ') and Show_In_wMVP != 0', tmConnect)
     }
 
     scenarioTreatments() {
@@ -145,11 +152,20 @@ class Scenario {
     }
 
     getProjNLoadSum() {
+
+      var projKGReduc = 0
+
+      var treatArray = this.treatments
       
-      return this.treatments.reduce((acc, i) => {
-        
-        return acc + i.Nload_Reduction
-      }, 0) 
+      this.techArray.map((i) => {
+
+        projKGReduc += i.ProjectCost_kg * treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
+      })
+
+      var totalNloadSums = this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
+
+      
+      return (projKGReduc)/totalNloadSums
     }
   }
 
@@ -160,10 +176,6 @@ class Scenario {
       this.treatmentTypeID = treatmentTypeID
       this.nLoadReduction = nLoadReduction
       this.projCostKG = projCostKG
-    }
-
-    getTechMatrixData() {
-      return executeQuery('select * from Technology_Matrix where Technology_ID = ' + this.treatmentTypeID + ' and Show_In_wMVP != 0', tmConnect)
     }
       
     nLoadReduction() {
@@ -197,11 +209,26 @@ var root = {
       a.nReducInEmbay = i.recordset[0].Nload_Reduction_InEmbay
       a.nReducSeptic = i.recordset[0].Nload_Reduction_Septic
       a.nReducSW = i.recordset[0].Nload_Reduction_SW
+      a.treatments = []
+      a.typeIDArray = []
+      a.techArray = []
 
       return a.getTreatmentsData().then((j) => {
 
-        a.treatments = j.recordset
-        return a
+        j.recordset.map((k) => {
+
+          a.typeIDArray.push(k.TreatmentType_ID)
+          a.treatments.push(k)
+        })
+
+        return a.getTechMatrixData().then((k) => {
+          
+          k.recordset.map((l) => {
+            a.techArray.push(l)
+          })
+
+          return a
+        })
       })
    })
   },
