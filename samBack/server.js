@@ -126,16 +126,16 @@ class Scenario {
 
     scenarioTreatments() {
 
+      var techArray = this.techArray
+
       return this.treatments.map((i) => {
 
         var newTreatment = new Treatment(i.TreatmentType_ID, i.Nload_Reduction)
+        var techRow = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID})
 
-        return newTreatment.getTechMatrixData().then((j) => {
-
-          newTreatment.projCostKG = j.recordset[0].ProjectCost_kg
-
-          return newTreatment
-        })
+        newTreatment.projCostKG = techRow.ProjectCost_kg
+        
+        return newTreatment
       })
     }
 
