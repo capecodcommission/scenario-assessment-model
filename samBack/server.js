@@ -71,7 +71,9 @@ type Scenario {
   getID: ID!
   getCreatedBy: String
   getNloadSums: Float
-  getProjNLoadSum: Float
+  capitalCost: Float
+  omCost: Float
+  lcCost: Float
   scenarioTreatments: [Treatment]
 }
 
@@ -79,6 +81,12 @@ type Treatment {
   treatmentTypeID: String!
   nLoadReduction: Float
   projCostKG: Float
+  omCostKG: Float
+  lcCostKG: Float
+  treatmentClass: String
+  treatmentCompat: Int
+  treatmentPolyString: String
+  treatmentCustomPoly: Int
 }
 
 type Query {
@@ -140,13 +148,16 @@ class Scenario {
       return this.treatments.map((i) => {
 
         // Build new Treatment object using array from scenario.treatments
-        var newTreatment = new Treatment(i.TreatmentType_ID, i.Nload_Reduction)
+        var newTreatment = new Treatment(i.TreatmentType_ID, i.Nload_Reduction, i.Treatment_Class, i.POLY_STRING, i.Custom_POLY)
 
         // Find matching Tech Matrix row using Treatment ID/Technology ID
         var techRow = techMatrixArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID})
 
         // Fill projcostKG from Tech Matrix
         newTreatment.projCostKG = techRow.ProjectCost_kg
+        newTreatment.omCostKG = techRow.OMCost_kg
+        newTreatment.lcCostKG = techRow.Avg_Life_Cycle_Cost
+        newTreatment.treatmentCompat = techRow.NewCompat
         
         return newTreatment
       })
@@ -166,7 +177,7 @@ class Scenario {
     }
 
     // Obtain capital cost
-    getProjNLoadSum() {
+    capitalCost() {
 
       // Initialize project cost running total
       var projKGReduc = 0
@@ -176,8 +187,10 @@ class Scenario {
       // Loop through Tech Matrix array
       this.techMatrixArray.map((i) => {
 
+        var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
+
         // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz
-        projKGReduc += i.ProjectCost_kg * treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
+        projKGReduc += i.ProjectCost_kg * treatmentNLoadReduc
       })
 
       // Sum nload reductions from Treatment Wiz
@@ -186,17 +199,95 @@ class Scenario {
       // Math to return the Capital Cost
       return (projKGReduc)/totalNloadSums
     }
+
+    // Obtain OM cost
+    omCost() {
+
+      // Initialize project cost running total
+      var omKGReduc = 0
+
+      var treatArray = this.treatments
+      
+      // Loop through Tech Matrix array
+      this.techMatrixArray.map((i) => {
+
+        var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
+
+        // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz
+        omKGReduc += i.OMCost_kg * treatmentNLoadReduc
+      })
+
+      // Sum nload reductions from Treatment Wiz
+      var totalNloadSums = this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
+
+      // Math to return the Capital Cost
+      return (omKGReduc)/totalNloadSums
+    }
+
+    // Obtain Life Cycle cost
+    lcCost() {
+
+      // Initialize project cost running total
+      var lcKGReduc = 0
+
+      var treatArray = this.treatments
+      
+      // Loop through Tech Matrix array
+      this.techMatrixArray.map((i) => {
+
+        var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
+
+        // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz
+        lcKGReduc += i.Avg_Life_Cycle_Cost * treatmentNLoadReduc
+      })
+
+      // Sum nload reductions from Treatment Wiz
+      var totalNloadSums = this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
+
+      // Math to return the Capital Cost
+      return (lcKGReduc)/totalNloadSums
+    }
+
+    // Obtain Growth Compatability
+    // growthComp() {
+
+    //   // Initialize project cost running total
+    //   var lcKGReduc = 0
+
+    //   var treatArray = this.treatments
+      
+    //   // Loop through Tech Matrix array
+    //   this.techMatrixArray.map((i) => {
+
+    //     var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
+
+    //     // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz
+    //     lcKGReduc += i.Avg_Life_Cycle_Cost * treatmentNLoadReduc
+    //   })
+
+    //   // Sum nload reductions from Treatment Wiz
+    //   var totalNloadSums = this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
+
+    //   // Math to return the Capital Cost
+    //   return (lcKGReduc)/totalNloadSums
+    // }
   }
 
   // Treatment class
   class Treatment {
 
     // Initialize treatment properties
-    constructor(treatmentTypeID, nLoadReduction, projCostKG) {
+    constructor(treatmentTypeID, nLoadReduction, treatmentClass, treatmentPolyString, treatmentCustomPoly, projCostKG, omCostKG, lcCostKG, treatmentCompat) {
 
       this.treatmentTypeID = treatmentTypeID
       this.nLoadReduction = nLoadReduction
       this.projCostKG = projCostKG
+      this.omCostKG = omCostKG
+      this.lcCostKG = lcCostKG
+      this.treatmentClass = treatmentClass
+      this.treatmentCompat = treatmentCompat
+      this.treatmentPolyString = treatmentPolyString
+      this.treatmentCustomPoly = treatmentCustomPoly
     }
       
     // Getters for each property
@@ -210,6 +301,30 @@ class Scenario {
 
     projCostKG() {
       return this.projCostKG
+    }
+
+    omCostKG() {
+      return this.omCostKG
+    }
+
+    lcCostKG() {
+      return this.lcCostKG
+    }
+
+    treatmentClass() {
+      return this.treatmentClass
+    }
+    
+    treatmentCompat() {
+      return this.treatmentCompat
+    }
+
+    treatmentPolyString() {
+      return this.treatmentPolyString
+    }
+
+    treatmentCustomPoly() {
+      return this.treatmentCustomPoly
     }
   }
 
