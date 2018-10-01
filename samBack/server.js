@@ -10,7 +10,6 @@ var sql = require("mssql");
 var wmvp3_DBConfig = {
   user: 'DBAccess',
   password: 'Acce$$DB',
-  // server: '192.138.212.28', //ACESS FROM EXTERNAL TO NETWORK? WHAT TRIVEDI WAS USING?
   server: '10.10.1.174',
   port: '65335',
   database: 'wMVP3_CapeCodMA',
@@ -24,6 +23,7 @@ var wmvp3_DBConfig = {
   }
 };
 
+// Tech Matrix db config
 var tm_DBConfig = {
   user: 'DBAccess',
   password: 'Acce$$DB',
@@ -40,22 +40,23 @@ var tm_DBConfig = {
   }
 };
 
+// Connection pools
 var wmvp3Connect = new sql.ConnectionPool(wmvp3_DBConfig)
 var tmConnect = new sql.ConnectionPool(tm_DBConfig)
 
+// Connect pools
 wmvp3Connect.connect(err => {
   if (err) {
     console.log("wmvp3Connect error -->", err)
   }
 })
-
 tmConnect.connect(err => {
   if (err) {
     console.log("tmConnect error -->", err)
   }
 })
 
-// Estbalish a ScenarioWizQuery f(x) to connect to 'wMVP3_CapeCodMA' & get a response
+// Execute query to connection pools
 var executeQuery = function (query, connection) {
 
   var request = new sql.Request(connection)
@@ -63,6 +64,7 @@ var executeQuery = function (query, connection) {
   return request.query(query)
 }
 
+// GraphQL type definitions
 const typeDefs = `
 
 type Scenario {
@@ -91,9 +93,11 @@ schema {
 // Construct a schema, using GraphQL schema language
 var schema = buildSchema(typeDefs);
 
+// Scenario class
 class Scenario {
 
-  constructor(id, createdBy, treatments, nReducFert, nReducSW, nReducSeptic, nReducGW, nReducAtt,  nReducInEmbay, typeIDArray, techArray) {
+  // Initialize scenario properties
+  constructor(id, createdBy, treatments, nReducFert, nReducSW, nReducSeptic, nReducGW, nReducAtt,  nReducInEmbay, typeIDArray, techMatrixArray) {
 
     this.id = id;
     this.createdBy = createdBy;
@@ -105,34 +109,43 @@ class Scenario {
     this.nReducAtt = nReducAtt
     this.nReducInEmbay = nReducInEmbay
     this.typeIDArray = typeIDArray
-    this.techArray = techArray
+    this.techMatrixArray = techMatrixArray
   }
 
+    // Retrieve data from Scenario Wiz
     getScenarioData() {
 
       return executeQuery('select top 1 * from CapeCodMA.Scenario_Wiz where ScenarioID = ' + this.id, wmvp3Connect)
     }
 
+    // Retrieve data from Treatment Wiz
     getTreatmentsData() {
 
       return executeQuery('select * from CapeCodMA.Treatment_Wiz where ScenarioID = ' + this.id, wmvp3Connect)
     }
 
+    // Retrieve data from Tech Matrix
     getTechMatrixData() {
 
       var queryTypeString = this.typeIDArray.map(i => {return "'" + i + "'"}).join(',')
       return executeQuery('select * from Technology_Matrix where Technology_ID in (' + queryTypeString + ') and Show_In_wMVP != 0', tmConnect)
     }
 
+    // Return new Treatments, fill in projcostKG for each Treatment
     scenarioTreatments() {
 
-      var techArray = this.techArray
+      var techMatrixArray = this.techMatrixArray
 
+      // Loop through Treatments
       return this.treatments.map((i) => {
 
+        // Build new Treatment object using array from scenario.treatments
         var newTreatment = new Treatment(i.TreatmentType_ID, i.Nload_Reduction)
-        var techRow = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID})
 
+        // Find matching Tech Matrix row using Treatment ID/Technology ID
+        var techRow = techMatrixArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID})
+
+        // Fill projcostKG from Tech Matrix
         newTreatment.projCostKG = techRow.ProjectCost_kg
         
         return newTreatment
@@ -147,30 +160,38 @@ class Scenario {
       return this.createdBy
     }
 
+    // Sum all nitrogen loads 
     getNloadSums() {
       return this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
     }
 
+    // Obtain capital cost
     getProjNLoadSum() {
 
+      // Initialize project cost running total
       var projKGReduc = 0
 
       var treatArray = this.treatments
       
-      this.techArray.map((i) => {
+      // Loop through Tech Matrix array
+      this.techMatrixArray.map((i) => {
 
+        // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz
         projKGReduc += i.ProjectCost_kg * treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
       })
 
+      // Sum nload reductions from Treatment Wiz
       var totalNloadSums = this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
 
-      
+      // Math to return the Capital Cost
       return (projKGReduc)/totalNloadSums
     }
   }
 
+  // Treatment class
   class Treatment {
 
+    // Initialize treatment properties
     constructor(treatmentTypeID, nLoadReduction, projCostKG) {
 
       this.treatmentTypeID = treatmentTypeID
@@ -178,6 +199,7 @@ class Scenario {
       this.projCostKG = projCostKG
     }
       
+    // Getters for each property
     nLoadReduction() {
       return this.nLoadReduction
     }
@@ -191,17 +213,18 @@ class Scenario {
     }
   }
 
-// Maps username to content
-var fakeDatabase = {};
-
 var root = {
   
+  // Main data query, initializes Scenario object and scenario functions
   getScenario: function({id}) {
 
+    // Init new Scenario class
     var a = new Scenario(id)
 
+    // Get data from scenario wiz
     return a.getScenarioData().then((i) => {
 
+      // Fill relevant scenario properties with query results, initialize arrays
       a.createdBy = i.recordset[0].CreatedBy
       a.nReducAtt = i.recordset[0].Nload_Reduction_Attenuation
       a.nReducFert = i.recordset[0].Nload_Reduction_Fert
@@ -211,22 +234,27 @@ var root = {
       a.nReducSW = i.recordset[0].Nload_Reduction_SW
       a.treatments = []
       a.typeIDArray = []
-      a.techArray = []
+      a.techMatrixArray = []
 
+      // Get data from Treatment Wiz
       return a.getTreatmentsData().then((j) => {
 
+        // Loop through results of Treatment Wiz data, fill relevant arrays
         j.recordset.map((k) => {
 
           a.typeIDArray.push(k.TreatmentType_ID)
           a.treatments.push(k)
         })
 
+        // Get data from Tech Matrix
         return a.getTechMatrixData().then((k) => {
           
+          // Loop through results from Tech Matrix data, fill relevant array
           k.recordset.map((l) => {
-            a.techArray.push(l)
+            a.techMatrixArray.push(l)
           })
 
+          // Return scenario
           return a
         })
       })
@@ -241,14 +269,14 @@ var root = {
   //       id
   //     }
   //   }
-  createMessage: function ({input}) {
+  // createMessage: function ({input}) {
 
-    // Create a random id for our "database".
-    var id = require('crypto').randomBytes(10).toString('hex');
+  //   // Create a random id for our "database".
+  //   var id = require('crypto').randomBytes(10).toString('hex');
 
-    fakeDatabase[id] = input;
-    return new Message(id, input);
-  },
+  //   fakeDatabase[id] = input;
+  //   return new Message(id, input);
+  // },
 
 
   // mutation {
@@ -259,17 +287,17 @@ var root = {
   //     content
   //   }
   // }
-  updateMessage: function ({id,input}) {
+  // updateMessage: function ({id,input}) {
 
-    if (!fakeDatabase[id]) {
+  //   if (!fakeDatabase[id]) {
 
-      throw new Error('no message exists with id ' + id);
-    }
+  //     throw new Error('no message exists with id ' + id);
+  //   }
 
-    // This replaces all old data, but some apps might want partial update.
-    fakeDatabase[id].content = input.content
-    return new Message(id, input);
-  }
+  //   // This replaces all old data, but some apps might want partial update.
+  //   fakeDatabase[id].content = input.content
+  //   return new Message(id, input);
+  // }
 };
 
 
@@ -279,6 +307,9 @@ var app = express();
 
 app.use(cors())
 
+
+// Unsure about definition of rootValue, but will place relevant links here
+// https://github.com/graphql/graphql-js/blob/master/src/execution/execute.js#L122
 app.use('/graphql', graphqlHTTP({
     schema: schema,
     rootValue: root,
