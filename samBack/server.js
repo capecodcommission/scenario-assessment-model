@@ -75,6 +75,7 @@ type Scenario {
   omCost: Float
   lcCost: Float
   scenarioTreatments: [Treatment]
+  subWaterIDArray: [String]
 }
 
 type Treatment {
@@ -87,6 +88,7 @@ type Treatment {
   treatmentCompat: Int
   treatmentPolyString: String
   treatmentCustomPoly: Int
+  subWaterIDArray: [String]
 }
 
 type Query {
@@ -105,7 +107,7 @@ var schema = buildSchema(typeDefs);
 class Scenario {
 
   // Initialize scenario properties
-  constructor(id, createdBy, treatments, nReducFert, nReducSW, nReducSeptic, nReducGW, nReducAtt,  nReducInEmbay, typeIDArray, techMatrixArray, areaID, treatmentIDCustomArray, subWatershedArray) {
+  constructor(id, createdBy, treatments, nReducFert, nReducSW, nReducSeptic, nReducGW, nReducAtt,  nReducInEmbay, typeIDArray, techMatrixArray, areaID, treatmentIDCustomArray, subWatershedArray, subWaterIDArray) {
 
     this.id = id;
     this.createdBy = createdBy;
@@ -121,6 +123,7 @@ class Scenario {
     this.areaID = areaID
     this.treatmentIDCustomArray = treatmentIDCustomArray
     this.subWatershedArray = subWatershedArray
+    this.subWaterIDArray = subWaterIDArray
   }
 
     // Retrieve data from Scenario Wiz
@@ -167,7 +170,7 @@ class Scenario {
 
         // Find matching Tech Matrix row using Treatment ID/Technology ID
         var techRow = techMatrixArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID})
-        var subWaterRows = subWaterArray.filter((j) => {if (j.TreatmentID === i.TreatmentID) return j})
+        var subWaterRows = subWaterArray.filter((j) => {return j.TreatmentID === i.TreatmentID}).map((k) => {return k.SUBWATER_ID})
 
         // Fill projcostKG from Tech Matrix
         newTreatment.projCostKG = techRow.ProjectCost_kg
@@ -181,6 +184,7 @@ class Scenario {
     }
 
     getID() {
+
       return this.id
     }
 
@@ -263,6 +267,11 @@ class Scenario {
 
       // Math to return the Capital Cost
       return (lcKGReduc)/totalNloadSums
+    }
+
+    subWaterIDArray() {
+
+      return this.subWaterIDArray
     }
 
     // Obtain Growth Compatability
@@ -375,6 +384,7 @@ var root = {
       a.techMatrixArray = []
       a.treatmentIDCustomArray = []
       a.subWatershedArray = []
+      a.subWaterIDArray = []
 
       // Get data from Treatment Wiz
       return a.getTreatmentsData().then((j) => {
@@ -401,6 +411,7 @@ var root = {
           return a.getSubwatershedsData().then((m) => {
 
             m.recordset.map((n) => {
+              a.subWaterIDArray.push(n.SUBWATER_ID)
               a.subWatershedArray.push({
                 TreatmentID: n.TreatmentID,
                 SUBWATER_ID: n.SUBWATER_ID
