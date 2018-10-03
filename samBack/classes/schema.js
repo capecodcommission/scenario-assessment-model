@@ -12,6 +12,7 @@ type Scenario {
   lcCost: Float
   scenarioTreatments: [Treatment]
   subWaterIDArray: [String]
+  growthComp: Float
 }
 
 type Treatment {

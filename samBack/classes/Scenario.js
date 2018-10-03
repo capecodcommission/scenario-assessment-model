@@ -6,7 +6,7 @@ var {Parcel} = require('./Parcel')
 class Scenario {
 
   // Initialize scenario properties
-  constructor(id, createdBy, treatments, nReducFert, nReducSW, nReducSeptic, nReducGW, nReducAtt,  nReducInEmbay, typeIDArray, techMatrixArray, areaID, treatmentIDCustomArray, subWatershedArray, subWaterIDArray, tblWinArray, ftCoeffArray) {
+  constructor(id, createdBy, treatments, nReducFert, nReducSW, nReducSeptic, nReducGW, nReducAtt,  nReducInEmbay, typeIDArray, techMatrixArray, areaID, treatmentIDCustomArray, subWatershedArray, tblWinArray, ftCoeffArray, areaName) {
 
     this.id = id;
     this.createdBy = createdBy;
@@ -22,9 +22,9 @@ class Scenario {
     this.areaID = areaID
     this.treatmentIDCustomArray = treatmentIDCustomArray
     this.subWatershedArray = subWatershedArray
-    this.subWaterIDArray = subWaterIDArray
     this.tblWinArray = tblWinArray
     this.ftCoeffArray = ftCoeffArray
+    this.areaName = areaName
   }
   
   // Retrieve data from Scenario Wiz
@@ -45,21 +45,23 @@ class Scenario {
     return DB.executeQuery('select * from CapeCodMA.FTCoeff where EMBAY_ID = ' + this.areaID, DB.wmvp3Connect)
   }
 
-  // Retrieve data from Tech Matrix
+  // Retrieve data from Tech Matrix by treatment ids
   getTechMatrixData() {
 
     var queryTypeString = this.typeIDArray.map(i => {return "'" + i + "'"}).join(',')
     return DB.executeQuery('select * from Technology_Matrix where Technology_ID in (' + queryTypeString + ') and Show_In_wMVP != 0', DB.tmConnect)
   }
 
+  // Retrieve data from subwatersheds by treatment ids and embayment id
   getSubwatershedsData() {
     var queryTypeString = this.treatmentIDCustomArray.map(i => {return "'" + i + "'"}).join(',')
-    return DB.executeQuery('SELECT tw.TreatmentID, sw.* FROM CapeCodMA.Treatment_Wiz tw INNER JOIN CapeCodMA.Subwatersheds sw ON geometry::STGeomFromText(tw.POLY_STRING, 3857).STIntersects(sw.Shape) = 1 AND tw.TreatmentID in (' + queryTypeString + ')', DB.wmvp3Connect)
+    return DB.executeQuery('SELECT tw.TreatmentID, sw.* FROM CapeCodMA.Treatment_Wiz tw INNER JOIN CapeCodMA.Subwatersheds sw ON geometry::STGeomFromText(tw.POLY_STRING, 3857).STIntersects(sw.Shape) = 1 AND tw.TreatmentID in (' + queryTypeString + ') and EMBAY_ID = ' + this.areaID, DB.wmvp3Connect)
   }
 
+  // Retrieve data from tblWin by treatment ids and embayment name
   getWINData() {
     var queryTypeString = this.treatmentIDCustomArray.map(i => {return "'" + i + "'"}).join(',')
-    return DB.executeQuery('SELECT tw.TreatmentID, sw.* FROM CapeCodMA.Treatment_Wiz tw INNER JOIN TBL_Dev.dbo.WIN sw ON geometry::STGeomFromText(tw.POLY_STRING, 0).STIntersects(sw.Shape) = 1 AND tw.TreatmentID in (' + queryTypeString + ')', DB.wmvp3Connect)
+    return DB.executeQuery('SELECT tw.TreatmentID, sw.* FROM CapeCodMA.Treatment_Wiz tw INNER JOIN TBL_Dev.dbo.WIN sw ON geometry::STGeomFromText(tw.POLY_STRING, 0).STIntersects(sw.Shape) = 1 AND tw.TreatmentID in (' + queryTypeString + ') and Embayment = ' + "'" + this.areaName + "'", DB.wmvp3Connect)
   }
 
   // Return new Treatments, fill in projcostKG for each Treatment
@@ -82,6 +84,7 @@ class Scenario {
           return j.Technology_ID === i.TreatmentType_ID
         })
 
+      // Find matching rows from subwatershed array by treatmentid, attach flow through coefficient by subwater id
       var subWaterRows = subWaterArray
         .filter((j) => {
           return j.TreatmentID === i.TreatmentID
@@ -90,15 +93,12 @@ class Scenario {
 
           var ftCoeffRows = ftCoeffArray.find((l) => {return l.SUBWATER_ID === k.SUBWATER_ID})
 
-          k.ftCoeff = ftCoeffRows.FLOWTHRUCOEF
+          if (ftCoeffRows) {k.ftCoeff = ftCoeffRows.FLOWTHRUCOEF} else {k.ftCoeff = 0}
 
           return new SubWatershed(k.SUBWATER_ID, k.ftCoeff)
         })
 
-      // var subWaterIDArray = subWaterRows.map((j) => {return j.SUBWATER_ID})
-
-      
-
+      // Find matching rows from tblWIN table by treatment id
       var winRows = winArray
         .filter((j) => {
           return j.TreatmentID === i.TreatmentID
@@ -107,7 +107,7 @@ class Scenario {
           return new Parcel(k.EconDevType, k.DensityCat, k.BioMap2, k.CWMP, k.NaturalAttenuation, k.NewSLIRM)
         })
 
-      // Fill projcostKG from Tech Matrix
+      // Fill treatment properties from various tables
       newTreatment.treatmentParcels = i.Treatment_Parcels
       newTreatment.projCostKG = techRow.ProjectCost_kg
       newTreatment.omCostKG = techRow.OMCost_kg
@@ -205,36 +205,86 @@ class Scenario {
     return (lcKGReduc)/totalNloadSums
   }
 
-  subWaterIDArray() {
+  // Obtain growth compatability
+  growthComp() {
 
-    return this.subWaterIDArray
-  }
+    // Init running totals, nload reduction totals, and table hooks to use inside treatment map
+    var treatGC = 0
+    var newGC = 0
+    var totalNloadReduc = this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
+    var tblWin = this.tblWinArray
+    var techArray =  this.techMatrixArray
+    var ftCoeffArray = this.ftCoeffArray
 
-  // Obtain Growth Compatability
-  // growthComp() {
+    this.treatments.map((i) => {
 
-  //   // Initialize project cost running total
-  //   var lcKGReduc = 0
+      // Find two properties from tech matrix array by treatment type id
+      var newCompat = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).NewCompat
+      var resil = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Resilience
 
-  //   var treatArray = this.treatments
+      if (i.Custom_POLY == 1) {
+
+        tblWin.map((j) => {
+
+          // Find flow through coefficient for each parcel using subwatershed id, set natural attenuation property using flow through coefficient if available
+          var ftCoeff = ftCoeffArray.find((l) => {return l.SUBWATER_ID === j.SUBWATER_ID})
+          if (ftCoeff) {j.NaturalAttenuation = ftCoeff.FLOWTHRUCOEF}
+
+          if (j.EconDevType !== "Limited Development Area" && j.EconDevType !== "Priority Protection Area") {treatGC += newCompat}
+          if (j.DensityCat == 5) {treatGC += 0}
+          if (j.DensityCat == 4) {treatGC += 1}
+          if (j.DensityCat == 3) {treatGC += 2}
+          if (j.DensityCat == 2) {treatGC += 3}
+          if (j.DensityCat == 1) {treatGC += 4}
+          if (j.BioMap2 == 2) {treatGC += newCompat}
+          if (j.CWMP == 2) {treatGC += newCompat}
+          if (j.NaturalAttenuation > .5) {treatGC += newCompat}
+          if (j.NewSLIRM !== 1) {treatGC += newCompat}
+        })
+  
+        if (i.Treatment_Class == "In-Embayment") {
+  
+          newGC += 14 * (i.Nload_Reduction/totalNloadReduc)
+        } else {
+  
+          newGC += (treatGC/i.Treatment_Parcels) * (i.Nload_Reduction/totalNloadReduc)
+        }
+      } else {
+
+        treatGC = 0
+        tblWin.map((j) => {
+
+          // Find flow through coefficient for each parcel using subwatershed id, set natural attenuation property using flow through coefficient if available
+          var ftCoeff = ftCoeffArray.find((l) => {return l.SUBWATER_ID === j.SUBWATER_ID})
+          if (ftCoeff) {j.NaturalAttenuation = ftCoeff.FLOWTHRUCOEF}
+
+          if (j.EconDevType !== "Limited Development Area" && j.EconDevType !== "Priority Protection Area") {treatGC += newCompat}
+          if (j.DensityCat == 5) {treatGC += 0}
+          if (j.DensityCat == 4) {treatGC += 1}
+          if (j.DensityCat == 3) {treatGC += 2}
+          if (j.DensityCat == 2) {treatGC += 3}
+          if (j.DensityCat == 1) {treatGC += 4}
+          if (j.BioMap2 == 2) {treatGC += newCompat}
+          if (j.CWMP == 2) {treatGC += newCompat}
+          if (j.NaturalAttenuation > .5) {treatGC += newCompat}
+          if (j.NewSLIRM !== 1) {treatGC += newCompat}
+        })
+  
+        if (i.Treatment_Class == "In-Embayment") {
+  
+          newGC += 14 * (i.Nload_Reduction/totalNloadReduc)
+        } else {
+  
+          newGC += (treatGC/i.Treatment_Parcels) * (i.Nload_Reduction/totalNloadReduc)
+        }
+      }
+    })  
     
-  //   // Loop through Tech Matrix array
-  //   this.techMatrixArray.map((i) => {
-
-  //     var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
-
-  //     // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz
-  //     lcKGReduc += i.Avg_Life_Cycle_Cost * treatmentNLoadReduc
-  //   })
-
-  //   // Sum nload reductions from Treatment Wiz
-  //   var totalNloadSums = this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
-
-  //   // Math to return the Capital Cost
-  //   return (lcKGReduc)/totalNloadSums
-  // }
+    return newGC
+  }
 }
 
 module.exports = {
+
   Scenario: Scenario
 }

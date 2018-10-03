@@ -17,6 +17,7 @@ getScenario = function({id}) {
     a.nReducSeptic = i.recordset[0].Nload_Reduction_Septic
     a.nReducSW = i.recordset[0].Nload_Reduction_SW
     a.areaID = i.recordset[0].AreaID
+    a.areaName = i.recordset[0].AreaName
     a.treatments = []
     a.typeIDArray = []
     a.techMatrixArray = []
@@ -32,10 +33,7 @@ getScenario = function({id}) {
       // Loop through results of Treatment Wiz data, fill relevant arrays
       j.recordset.map((k) => {
 
-        if (k.Custom_POLY === 1) {
-          a.treatmentIDCustomArray.push(k.TreatmentID)
-        }
-
+        a.treatmentIDCustomArray.push(k.TreatmentID)
         a.typeIDArray.push(k.TreatmentType_ID)
         a.treatments.push(k)
       })
