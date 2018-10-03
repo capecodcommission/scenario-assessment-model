@@ -113,6 +113,8 @@ class Scenario {
       newTreatment.omCostKG = techRow.OMCost_kg
       newTreatment.lcCostKG = techRow.Avg_Life_Cycle_Cost
       newTreatment.treatmentCompat = techRow.NewCompat
+      newTreatment.capitalFTE = techRow.capFTE
+      newTreatment.omFTE = techRow.omFTE
       newTreatment.subWatershedArray = subWaterRows
       newTreatment.tblWinArray = winRows
       
@@ -282,6 +284,30 @@ class Scenario {
     
     return newGC
   }
+
+ // Obtain Jobs
+ jobs() {
+   // $newJobs += (($tProj_kg*$tNReduction*$capFTE) + ($tOM_kg*$tNReduction*$omFTE))/1000000;
+   
+   // Initialize jobs running total
+   var jobs = 0
+
+   // Refer to treatments array to use below in techMatrix
+   var treatArray = this.treatments
+   
+   // Loop through Tech Matrix array
+   this.techMatrixArray.map((i) => {
+    
+    // Get Nload_reduction from Treatment_Wiz in treatArray
+    var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
+
+        // Sum up 'jobs' as a running total as below
+        jobs += (((i.ProjectCost_kg * treatmentNLoadReduc * i.capFTE) + (i.OMCost_kg * treatmentNLoadReduc * i.omFTE)) / 1000000)
+      })
+      // Return the running 'jobs' total
+      return jobs
+ }
+
 }
 
 module.exports = {

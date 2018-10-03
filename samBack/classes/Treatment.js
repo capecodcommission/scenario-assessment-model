@@ -1,7 +1,7 @@
 class Treatment {
 
   // Initialize treatment properties
-  constructor(treatmentTypeID, nLoadReduction, treatmentClass, treatmentPolyString, treatmentCustomPoly, treatmentParcels, projCostKG, omCostKG, lcCostKG, treatmentCompat, subWaterIDArray, tblWinArray) {
+  constructor(treatmentTypeID, nLoadReduction, treatmentClass, treatmentPolyString, treatmentCustomPoly, treatmentParcels, projCostKG, omCostKG, lcCostKG, treatmentCompat, subWaterIDArray, tblWinArray, capitalFTE, omFTE) {
 
     this.treatmentTypeID = treatmentTypeID
     this.nLoadReduction = nLoadReduction
@@ -15,6 +15,8 @@ class Treatment {
     this.subWaterIDArray = subWaterIDArray
     this.tblWinArray = tblWinArray
     this.treatmenParcels = treatmentParcels
+    this.capitalFTE = capitalFTE
+    this.omFTE = omFTE
   }
     
   // Getters for each property
@@ -64,6 +66,14 @@ class Treatment {
   
   treatmentParcels() {
     return this.treatmentParcels
+  }
+
+  capitalFTE() {
+    return this.capitalFTE
+  }
+  
+  omFTE() {
+    return this.omFTE
   }
 }
 

@@ -10,6 +10,7 @@ type Scenario {
   capitalCost: Float
   omCost: Float
   lcCost: Float
+  jobs: Float
   scenarioTreatments: [Treatment]
   subWaterIDArray: [String]
   growthComp: Float
@@ -23,6 +24,8 @@ type Treatment {
   lcCostKG: Float
   treatmentClass: String
   treatmentCompat: Int
+  capitalFTE: Float
+  omFTE: Float
   treatmentPolyString: String
   treatmentCustomPoly: Int
   subWaterIDArray: [String]
