@@ -6,7 +6,7 @@ var {Parcel} = require('./Parcel')
 class Scenario {
 
   // Initialize scenario properties
-  constructor(id, createdBy, treatments, nReducFert, nReducSW, nReducSeptic, nReducGW, nReducAtt,  nReducInEmbay, typeIDArray, techMatrixArray, areaID, treatmentIDCustomArray, subWatershedArray, tblWinArray, ftCoeffArray, areaName) {
+  constructor(id, createdBy, treatments, nReducFert, nReducSW, nReducSeptic, nReducGW, nReducAtt,  nReducInEmbay, typeIDArray, techMatrixArray, areaID, treatmentIDCustomArray, subWatershedArray, tblWinArray, ftCoeffArray, areaName, technologiesArray) {
 
     this.id = id;
     this.createdBy = createdBy;
@@ -25,6 +25,7 @@ class Scenario {
     this.tblWinArray = tblWinArray
     this.ftCoeffArray = ftCoeffArray
     this.areaName = areaName
+    this.technologiesArray = technologiesArray
   }
   
   // Retrieve data from Scenario Wiz
@@ -62,6 +63,12 @@ class Scenario {
   getWINData() {
     var queryTypeString = this.treatmentIDCustomArray.map(i => {return "'" + i + "'"}).join(',')
     return DB.executeQuery('SELECT tw.TreatmentID, sw.* FROM CapeCodMA.Treatment_Wiz tw INNER JOIN TBL_Dev.dbo.WIN sw ON geometry::STGeomFromText(tw.POLY_STRING, 0).STIntersects(sw.Shape) = 1 AND tw.TreatmentID in (' + queryTypeString + ') and Embayment = ' + "'" + this.areaName + "'", DB.wmvp3Connect)
+  }
+
+  getTechnologiesData() {
+
+    var queryTypeString = this.typeIDArray.map(i => {return "'" + i + "'"}).join(',')
+    return DB.executeQuery('select * from technologies where technology_id in (' + queryTypeString + ')', DB.tmConnect)
   }
 
   // Return new Treatments, fill in projcostKG for each Treatment
@@ -222,7 +229,6 @@ class Scenario {
 
       // Find two properties from tech matrix array by treatment type id
       var newCompat = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).NewCompat
-      var resil = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Resilience
 
       if (i.Custom_POLY == 1) {
 
@@ -285,29 +291,124 @@ class Scenario {
     return newGC
   }
 
- // Obtain Jobs
- jobs() {
-   // $newJobs += (($tProj_kg*$tNReduction*$capFTE) + ($tOM_kg*$tNReduction*$omFTE))/1000000;
-   
-   // Initialize jobs running total
-   var jobs = 0
-
-   // Refer to treatments array to use below in techMatrix
-   var treatArray = this.treatments
-   
-   // Loop through Tech Matrix array
-   this.techMatrixArray.map((i) => {
+  // Obtain Jobs
+  jobs() {
+    // $newJobs += (($tProj_kg*$tNReduction*$capFTE) + ($tOM_kg*$tNReduction*$omFTE))/1000000;
     
-    // Get Nload_reduction from Treatment_Wiz in treatArray
-    var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
+    // Initialize jobs running total
+    var jobs = 0
 
-        // Sum up 'jobs' as a running total as below
-        jobs += (((i.ProjectCost_kg * treatmentNLoadReduc * i.capFTE) + (i.OMCost_kg * treatmentNLoadReduc * i.omFTE)) / 1000000)
-      })
-      // Return the running 'jobs' total
-      return jobs
- }
+    // Refer to treatments array to use below in techMatrix
+    var treatArray = this.treatments
+    
+    // Loop through Tech Matrix array
+    this.techMatrixArray.map((i) => {
+      
+      // Get Nload_reduction from Treatment_Wiz in treatArray
+      var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
 
+      // Sum up 'jobs' as a running total as below
+      jobs += (((i.ProjectCost_kg * treatmentNLoadReduc * i.capFTE) + (i.OMCost_kg * treatmentNLoadReduc * i.omFTE)) / 1000000)
+    })
+    // Return the running 'jobs' total
+    return jobs
+  }
+
+  // Obtain useful life in years
+  years() {
+
+    // Init table hooks, sums, and running totals
+    var techArray = this.techMatrixArray
+    var totalNloadReduc = this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
+    var years = 0
+
+    this.treatments.map((i) => {
+
+      // Get useful life in years from tech matrix
+      var usefulYrs = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Useful_Life_Yrs
+
+      // Math to obtain raw score
+      years += usefulYrs * (i.Nload_Reduction / totalNloadReduc)
+    })
+
+    return years
+  }
+
+  // Obtain variable performance
+  varPerf() {
+
+    // Init table hooks, sums, and running totals
+    var techArray = this.technologiesArray
+    var totalNloadReduc = this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
+    var varP = 0
+
+    this.treatments.map((i) => {
+
+      // Get percent reduction properties from technologies table
+      var tPerfHigh = techArray.find((j) => {return j.technology_id === i.TreatmentType_ID}).n_percent_reduction_high
+      var tPerfLow = techArray.find((j) => {return j.technology_id === i.TreatmentType_ID}).n_percent_reduction_low
+
+      // Math to obtain raw variable performance score
+      varP += (tPerfHigh - tPerfLow) * (i.Nload_Reduction / totalNloadReduc)
+    })
+
+    return varP
+  }
+
+  // Obtain flood ratio
+  floodRatio() {
+
+    // Init running totals and table hooks
+    var treatFZ = 0
+    var floodSum = 0
+    var floodRatio = 0
+    var treatCount = 0
+    var parFZCount = 0
+    var techArray = this.techMatrixArray
+    var tblWin = this.tblWinArray
+
+    // Get flood zone parcel count for embayment
+    tblWin.map((i) => {
+
+      if (i.NewSLIRM === 1) {
+
+        parFZCount++
+      }
+    })
+
+    this.treatments.map((i) => {
+
+      // Keep running total of treatments, obtain resilience from tech matrix
+      treatCount++
+      var resil = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Resilience
+
+      // If treatment is custom polygon, obtain flood zone sum using parcels within treatment
+      if (i.Custom_POLY == 1) {
+
+        tblWin.map((j) => {
+          
+          treatFZ += j.NewSLIRM
+        })
+  
+        floodSum += treatFZ + resil
+      } else {
+  
+        /// Otherwise, obtain flood zone sum using embayment
+        floodSum += parFZCount * resil
+      }
+    })  
+
+    // Math to obtain raw flood ratio score
+    if (parFZCount > 0) {
+
+      floodRatio = (floodSum / treatCount) / parFZCount
+    } else {
+
+      floodRatio = 0
+    }
+
+    return floodRatio
+  }
 }
 
 module.exports = {

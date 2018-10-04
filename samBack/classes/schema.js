@@ -14,6 +14,9 @@ type Scenario {
   scenarioTreatments: [Treatment]
   subWaterIDArray: [String]
   growthComp: Float
+  years: Float
+  varPerf: Float
+  floodRatio: Float
 }
 
 type Treatment {

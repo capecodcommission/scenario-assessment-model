@@ -26,6 +26,7 @@ getScenario = function({id}) {
     a.subWaterIDArray = []
     a.tblWinArray = []
     a.ftCoeffArray = []
+    a.technologiesArray = []
 
     // Get data from Treatment Wiz
     return a.getTreatmentsData().then((j) => {
@@ -68,7 +69,14 @@ getScenario = function({id}) {
                 a.ftCoeffArray.push(r)
               })
 
-              return a
+              return a.getTechnologiesData().then((s) => {
+
+                s.recordset.map((t) => {
+                  a.technologiesArray.push(t)
+                })
+
+                return a
+              })
             })
           })
         })
