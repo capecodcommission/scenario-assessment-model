@@ -17,6 +17,7 @@ type Scenario {
   years: Float
   varPerf: Float
   floodRatio: Float
+  pvla: Float
 }
 
 type Treatment {

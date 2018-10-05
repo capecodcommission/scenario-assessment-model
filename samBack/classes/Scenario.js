@@ -6,7 +6,7 @@ var {Parcel} = require('./Parcel')
 class Scenario {
 
   // Initialize scenario properties
-  constructor(id, createdBy, treatments, nReducFert, nReducSW, nReducSeptic, nReducGW, nReducAtt,  nReducInEmbay, typeIDArray, techMatrixArray, areaID, treatmentIDCustomArray, subWatershedArray, tblWinArray, ftCoeffArray, areaName, technologiesArray) {
+  constructor(id, createdBy, treatments, nReducFert, nReducSW, nReducSeptic, nReducGW, nReducAtt,  nReducInEmbay, typeIDArray, techMatrixArray, areaID, treatmentIDCustomArray, subWatershedArray, tblWinArray, ftCoeffArray, areaName, technologiesArray, nConversion, embayNCalc) {
 
     this.id = id;
     this.createdBy = createdBy;
@@ -26,6 +26,8 @@ class Scenario {
     this.ftCoeffArray = ftCoeffArray
     this.areaName = areaName
     this.technologiesArray = technologiesArray
+    this.nConversion = nConversion
+    this.embayNCalc = embayNCalc
   }
   
   // Retrieve data from Scenario Wiz
@@ -69,6 +71,10 @@ class Scenario {
 
     var queryTypeString = this.typeIDArray.map(i => {return "'" + i + "'"}).join(',')
     return DB.executeQuery('select * from technologies where technology_id in (' + queryTypeString + ')', DB.tmConnect)
+  }
+
+  getNConversionData() {
+    return DB.executeQuery('select * from TBL_Dev.dbo.TBL_NConversion_SQL where EMBAY_ID = ' + this.areaID, DB.wmvp3Connect)
   }
 
   // Return new Treatments, fill in projcostKG for each Treatment
@@ -408,6 +414,41 @@ class Scenario {
     }
 
     return floodRatio
+  }
+
+  // Obtain property value loss avoided raw score
+  pvla() {
+
+    // Init running totals and property hooks
+    var pvla = 0
+    var embayNReduc = this.nReducInEmbay
+    var slope = parseFloat(this.nConversion.Slope)
+    var intercept = parseFloat(this.nConversion.Intercept)
+    var embayNCalc = this.embayNCalc
+    var waterfrontPropVal = 0
+    var totalPropVal = 0
+
+    // Total property values
+    this.tblWinArray.map((i) => {
+
+      totalPropVal += i.TotalAssessedValue
+
+      if (i.Waterfront === 1) {
+        
+        waterfrontPropVal += i.TotalAssessedValue
+      }
+    })
+
+    if (embayNReduc != null) {
+
+      // Math to obtain property value loss avoided
+      pvla = (((embayNReduc * slope + intercept) / (embayNCalc * slope + intercept)) * .61 * waterfrontPropVal + totalPropVal) / totalPropVal
+    } else {
+
+      pvla = 1
+    }
+
+    return pvla
   }
 }
 

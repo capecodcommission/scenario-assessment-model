@@ -18,6 +18,7 @@ getScenario = function({id}) {
     a.nReducSW = i.recordset[0].Nload_Reduction_SW
     a.areaID = i.recordset[0].AreaID
     a.areaName = i.recordset[0].AreaName
+    a.embayNCalc = i.recordset[0].Nload_Calculated_InEmbay
     a.treatments = []
     a.typeIDArray = []
     a.techMatrixArray = []
@@ -75,7 +76,12 @@ getScenario = function({id}) {
                   a.technologiesArray.push(t)
                 })
 
-                return a
+                return a.getNConversionData().then((u) => {
+
+                  a.nConversion = u.recordset[0]
+
+                  return a
+                })
               })
             })
           })

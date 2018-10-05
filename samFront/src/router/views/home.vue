@@ -17,12 +17,15 @@ export default {
     apolloTest: {
       query: gql`query myQuery($id: String) {
         getScenario(id: $id) {
-          getID
-          getCreatedBy
-          scenarioTreatments {
-            treatmentID
-            treatmentName
-          }
+          capitalCost
+          omCost
+          lcCost
+          growthComp
+          jobs
+          varPerf
+          floodRatio
+          pvla
+          years
         }
       }`,
       // query: gql`query { getMessage(id: "78bbd9fa0cdb14420ece") {
@@ -31,7 +34,7 @@ export default {
       // }}`,
       variables() {
         return {
-          id: "630"
+          id: "2965"
         }
       },
       update: function(data) {
@@ -41,7 +44,17 @@ export default {
   },
   watch: {
     apolloTest: function(x) {
-      console.log(x)
+      this.chartData.children[0].children[0].size = x.getScenario.growthComp
+      this.chartData.children[0].children[1].size = x.getScenario.jobs
+      this.chartData.children[0].children[2].size = x.getScenario.pvla
+
+      this.chartData.children[1].children[0].size = x.getScenario.capitalCost
+      this.chartData.children[1].children[1].size = x.getScenario.omCost
+      this.chartData.children[1].children[2].size = x.getScenario.lcCost
+
+      this.chartData.children[2].children[0].size = x.getScenario.years
+      this.chartData.children[2].children[1].size = x.getScenario.varPerf
+      this.chartData.children[2].children[2].size = x.getScenario.floodRatio
     }
   },
   data() {
@@ -256,9 +269,9 @@ export default {
         >
           <h5><strong>{{ scenarioID }}</strong></h5>
           <h5><strong>Treatments</strong></h5>
-          <div v-for = "treatment in apolloTest.getScenario.scenarioTreatments">
+          <!-- <div v-for = "treatment in apolloTest.getScenario.scenarioTreatments">
             <h6>{{treatment.treatmentName}}</h6>
-          </div>
+          </div> -->
         </VCardText>
       </VCard>
       <VCard
