@@ -28,6 +28,8 @@ getScenario = function({id}) {
     a.tblWinArray = []
     a.ftCoeffArray = []
     a.technologiesArray = []
+    a.fullTechMatrix = []
+    a.fullTechnologies = []
 
     // Get data from Treatment Wiz
     return a.getTreatmentsData().then((j) => {
@@ -80,7 +82,21 @@ getScenario = function({id}) {
 
                   a.nConversion = u.recordset[0]
 
-                  return a
+                  return a.getAllTechMatrixData().then((r) => {
+
+                    r.recordset.map((s) => {
+                      a.fullTechMatrix.push(s)
+                    })
+
+                    return a.getAllTechnologiesData().then((s) => {
+
+                      s.recordset.map((t) => {
+                        a.fullTechnologies.push(t)
+                      })
+
+                      return a
+                    })
+                  })
                 })
               })
             })

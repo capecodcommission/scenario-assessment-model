@@ -6,7 +6,7 @@ var {Parcel} = require('./Parcel')
 class Scenario {
 
   // Initialize scenario properties
-  constructor(id, createdBy, treatments, nReducFert, nReducSW, nReducSeptic, nReducGW, nReducAtt,  nReducInEmbay, typeIDArray, techMatrixArray, areaID, treatmentIDCustomArray, subWatershedArray, tblWinArray, ftCoeffArray, areaName, technologiesArray, nConversion, embayNCalc) {
+  constructor(id, createdBy, treatments, nReducFert, nReducSW, nReducSeptic, nReducGW, nReducAtt,  nReducInEmbay, typeIDArray, techMatrixArray, areaID, treatmentIDCustomArray, subWatershedArray, tblWinArray, ftCoeffArray, areaName, technologiesArray, nConversion, embayNCalc, fullTechMatrix, fullTechnologies) {
 
     this.id = id;
     this.createdBy = createdBy;
@@ -28,6 +28,167 @@ class Scenario {
     this.technologiesArray = technologiesArray
     this.nConversion = nConversion
     this.embayNCalc = embayNCalc
+    this.fullTechMatrix = fullTechMatrix
+    this.fullTechnologies = fullTechnologies
+  }
+
+  calcScore(rawScore, type) {
+
+    //generate scoring scales
+    var capArray = [];
+    var omArray = [];
+    var lcArray = [];
+    var perfArray = [];
+    var yearsArray = [];
+    var jobsArray = [];
+    var arrays = []
+
+    var allTechnologies = this.fullTechnologies
+    var tPerfHigh = 0
+    var tPerfLow = 0
+    var delta = 0
+    var job = 0
+    var totalNloadReduc = this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
+    var kd = []
+    var percentiles = []
+    var capPercentile = []
+    var omPercentile = []
+    var lcPercentile = []
+    var perfPercentile = []
+    var yearsPercentile = []
+    var jobsPercentile = []
+
+    this.fullTechMatrix.map((i) => {
+
+      var techRow = allTechnologies.find((j) => {return j.technology_id === i.Technology_ID})
+
+      // Get percent reduction properties from technologies table
+      tPerfHigh = techRow.n_percent_reduction_high
+      tPerfLow = techRow.n_percent_reduction_low
+      delta = tPerfHigh - tPerfLow
+
+      job = ((i.ProjectCost_kg * totalNloadReduc * i.capFTE) + (i.OMCost_kg * totalNloadReduc * i.omFTE)) / 1000000
+
+      capArray.push(i.ProjectCost_kg)
+      omArray.push(i.OMCost_kg)
+      lcArray.push(i.Avg_Life_Cycle_Cost)
+      perfArray.push(delta)
+      yearsArray.push(i.Useful_Life_Yrs)
+      jobsArray.push(job)
+    })
+
+    arrays = [capArray, omArray, lcArray, perfArray, yearsArray, jobsArray]
+
+    for (var i = 10; i <= 100; i+=10) { 
+      
+      var n = ((i/100) * capArray.length).toFixed(1)
+      var nString = n.toString()
+      var nExplode = nString.split('.')
+      var k = parseFloat(nExplode[0])
+      var d = parseFloat(nExplode[1])
+
+      kd.push([i,k,d])
+    } 
+
+    arrays.map((i) => {
+
+      i.sort((a,b) => {return a - b})
+      
+      var thesePcts = []
+
+      kd.map((j) => {
+
+        var k = j[1]
+        var d = j[2]
+        var vp = i[k - 1] + d * i[k - 1]
+
+        thesePcts.push(vp)
+      })
+
+      percentiles.push(thesePcts)
+    })
+
+    capPercentile = percentiles[0]
+    omPercentile = percentiles[1]
+    lcPercentile = percentiles[2]
+    perfPercentile = percentiles[3]
+    yearsPercentile = percentiles[4]
+    jobsPercentile = percentiles[5]
+
+    switch(type) {
+
+      case 'cap':
+        if (rawScore <= capPercentile[0]) {return 10}
+        if (capPercentile[0] < rawScore && rawScore <= capPercentile[1]) {return 9}
+        if (capPercentile[1] < rawScore && rawScore <= capPercentile[2]) {return 8}
+        if (capPercentile[2] < rawScore && rawScore <= capPercentile[3]) {return 7}
+        if (capPercentile[3] < rawScore && rawScore <= capPercentile[4]) {return 6}
+        if (capPercentile[4] < rawScore && rawScore <= capPercentile[5]) {return 5}
+        if (capPercentile[5] < rawScore && rawScore <= capPercentile[6]) {return 4}
+        if (capPercentile[6] < rawScore && rawScore <= capPercentile[7]) {return 3}
+        if (capPercentile[7] < rawScore && rawScore <= capPercentile[8]) {return 2}
+        if (rawScore > capPercentile[8]) {return 1}
+
+      case 'om':
+        if (rawScore <= omPercentile[0]) {return 10}
+        if (omPercentile[0] < rawScore && rawScore <= omPercentile[1]) {return 9}
+        if (omPercentile[1] < rawScore && rawScore <= omPercentile[2]) {return 8}
+        if (omPercentile[2] < rawScore && rawScore <= omPercentile[3]) {return 7}
+        if (omPercentile[3] < rawScore && rawScore <= omPercentile[4]) {return 6}
+        if (omPercentile[4] < rawScore && rawScore <= omPercentile[5]) {return 5}
+        if (omPercentile[5] < rawScore && rawScore <= omPercentile[6]) {return 4}
+        if (omPercentile[6] < rawScore && rawScore <= omPercentile[7]) {return 3}
+        if (omPercentile[7] < rawScore && rawScore <= omPercentile[8]) {return 2}
+        if (rawScore > omPercentile[8]) {return 1}
+
+      case 'lc':
+        if (rawScore <= lcPercentile[0]) {return 10}
+        if (lcPercentile[0] < rawScore && rawScore <= lcPercentile[1]) {return 9}
+        if (lcPercentile[1] < rawScore && rawScore <= lcPercentile[2]) {return 8}
+        if (lcPercentile[2] < rawScore && rawScore <= lcPercentile[3]) {return 7}
+        if (lcPercentile[3] < rawScore && rawScore <= lcPercentile[4]) {return 6}
+        if (lcPercentile[4] < rawScore && rawScore <= lcPercentile[5]) {return 5}
+        if (lcPercentile[5] < rawScore && rawScore <= lcPercentile[6]) {return 4}
+        if (lcPercentile[6] < rawScore && rawScore <= lcPercentile[7]) {return 3}
+        if (lcPercentile[7] < rawScore && rawScore <= lcPercentile[8]) {return 2}
+        if (rawScore > lcPercentile[8]) {return 1}
+
+      case 'varp':
+        if (rawScore <= perfPercentile[0]) {return 10}
+        if (perfPercentile[0] < rawScore && rawScore <= perfPercentile[1]) {return 9}
+        if (perfPercentile[1] < rawScore && rawScore <= perfPercentile[2]) {return 8}
+        if (perfPercentile[2] < rawScore && rawScore <= perfPercentile[3]) {return 7}
+        if (perfPercentile[3] < rawScore && rawScore <= perfPercentile[4]) {return 6}
+        if (perfPercentile[4] < rawScore && rawScore <= perfPercentile[5]) {return 5}
+        if (perfPercentile[5] < rawScore && rawScore <= perfPercentile[6]) {return 4}
+        if (perfPercentile[6] < rawScore && rawScore <= perfPercentile[7]) {return 3}
+        if (perfPercentile[7] < rawScore && rawScore <= perfPercentile[8]) {return 2}
+        if (rawScore > perfPercentile[8]) {return 1}
+
+      case 'years':
+        if (rawScore <= yearsPercentile[0]) {return 1}
+        if (yearsPercentile[0] < rawScore && rawScore <= yearsPercentile[1]) {return 2}
+        if (yearsPercentile[1] < rawScore && rawScore <= yearsPercentile[2]) {return 3}
+        if (yearsPercentile[2] < rawScore && rawScore <= yearsPercentile[3]) {return 4}
+        if (yearsPercentile[3] < rawScore && rawScore <= yearsPercentile[4]) {return 5}
+        if (yearsPercentile[4] < rawScore && rawScore <= yearsPercentile[5]) {return 6}
+        if (yearsPercentile[5] < rawScore && rawScore <= yearsPercentile[6]) {return 7}
+        if (yearsPercentile[6] < rawScore && rawScore <= yearsPercentile[7]) {return 8}
+        if (yearsPercentile[7] < rawScore && rawScore <= yearsPercentile[8]) {return 9}
+        if (rawScore > yearsPercentile[8]) {return 10}
+
+      case 'jobs':
+        if (rawScore <= jobsPercentile[0]) {return 1}
+        if (jobsPercentile[0] < rawScore && rawScore <= jobsPercentile[1]) {return 2}
+        if (jobsPercentile[1] < rawScore && rawScore <= jobsPercentile[2]) {return 3}
+        if (jobsPercentile[2] < rawScore && rawScore <= jobsPercentile[3]) {return 4}
+        if (jobsPercentile[3] < rawScore && rawScore <= jobsPercentile[4]) {return 5}
+        if (jobsPercentile[4] < rawScore && rawScore <= jobsPercentile[5]) {return 6}
+        if (jobsPercentile[5] < rawScore && rawScore <= jobsPercentile[6]) {return 7}
+        if (jobsPercentile[6] < rawScore && rawScore <= jobsPercentile[7]) {return 8}
+        if (jobsPercentile[7] < rawScore && rawScore <= jobsPercentile[8]) {return 9}
+        if (rawScore > jobsPercentile[8]) {return 10}
+    } 
   }
   
   // Retrieve data from Scenario Wiz
@@ -55,6 +216,12 @@ class Scenario {
     return DB.executeQuery('select * from Technology_Matrix where Technology_ID in (' + queryTypeString + ') and Show_In_wMVP != 0', DB.tmConnect)
   }
 
+  // Retrieve all data from Tech Matrix
+  getAllTechMatrixData() {
+    
+    return DB.executeQuery('select * from Technology_Matrix where Show_In_wMVP != 0', DB.tmConnect)
+  }
+
   // Retrieve data from subwatersheds by treatment ids and embayment id
   getSubwatershedsData() {
     var queryTypeString = this.treatmentIDCustomArray.map(i => {return "'" + i + "'"}).join(',')
@@ -71,6 +238,11 @@ class Scenario {
 
     var queryTypeString = this.typeIDArray.map(i => {return "'" + i + "'"}).join(',')
     return DB.executeQuery('select * from technologies where technology_id in (' + queryTypeString + ')', DB.tmConnect)
+  }
+
+  getAllTechnologiesData() {
+
+    return DB.executeQuery('select * from technologies', DB.tmConnect)
   }
 
   getNConversionData() {
@@ -169,7 +341,9 @@ class Scenario {
     var totalNloadSums = this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
 
     // Math to return the Capital Cost
-    return (projKGReduc)/totalNloadSums
+    var rawScore = (projKGReduc)/totalNloadSums
+
+    return this.calcScore(rawScore, 'cap')
   }
 
   // Obtain OM cost
@@ -193,7 +367,9 @@ class Scenario {
     var totalNloadSums = this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
 
     // Math to return the Capital Cost
-    return (omKGReduc)/totalNloadSums
+    var rawScore = (omKGReduc)/totalNloadSums
+
+    return this.calcScore(rawScore, 'om')
   }
 
   // Obtain Life Cycle cost
@@ -217,7 +393,9 @@ class Scenario {
     var totalNloadSums = this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
 
     // Math to return the Capital Cost
-    return (lcKGReduc)/totalNloadSums
+    var rawScore = (lcKGReduc)/totalNloadSums
+
+    return this.calcScore(rawScore,'lc')
   }
 
   // Obtain growth compatability
@@ -317,7 +495,7 @@ class Scenario {
       jobs += (((i.ProjectCost_kg * treatmentNLoadReduc * i.capFTE) + (i.OMCost_kg * treatmentNLoadReduc * i.omFTE)) / 1000000)
     })
     // Return the running 'jobs' total
-    return jobs
+    return this.calcScore(jobs,'jobs')
   }
 
   // Obtain useful life in years
@@ -337,7 +515,7 @@ class Scenario {
       years += usefulYrs * (i.Nload_Reduction / totalNloadReduc)
     })
 
-    return years
+    return this.calcScore(years,'years')
   }
 
   // Obtain variable performance
@@ -358,7 +536,7 @@ class Scenario {
       varP += (tPerfHigh - tPerfLow) * (i.Nload_Reduction / totalNloadReduc)
     })
 
-    return varP
+    return this.calcScore(varP,'varp')
   }
 
   // Obtain flood ratio
