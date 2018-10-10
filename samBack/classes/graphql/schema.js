@@ -57,6 +57,7 @@ type Scores {
   capitalCost: Float
   lcCost: Float
   years: Float
+  varPerf: Float
 }
 
 type Query {

@@ -201,6 +201,26 @@ class Scores {
 
     return this.calcScore(years,'years')
   }
+  // Obtain variable performance
+  varPerf() {
+
+    // Init table hooks, sums, and running totals
+    var techArray = this.technologies
+    var totalNloadReduc = this.nReducTotal
+    var varP = 0
+
+    this.treatments.map((i) => {
+
+      // Get percent reduction properties from technologies table
+      var tPerfHigh = techArray.find((j) => {return j.technology_id === i.TreatmentType_ID}).n_percent_reduction_high
+      var tPerfLow = techArray.find((j) => {return j.technology_id === i.TreatmentType_ID}).n_percent_reduction_low
+
+      // Math to obtain raw variable performance score
+      varP += (tPerfHigh - tPerfLow) * (i.Nload_Reduction / totalNloadReduc)
+    })
+
+    return this.calcScore(varP,'varp')
+  }
 }
 
 module.exports = {
