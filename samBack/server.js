@@ -1,12 +1,14 @@
 var express = require('express');
 var graphqlHTTP = require('express-graphql');
 var cors = require('cors')
-var {getScenario} = require('./classes/queries')
-var {schema} = require('./classes/schema')
+var {getScenario} = require('./classes/queries/scenarioQueries')
+var {getScores} = require('./classes/queries/scoreQueries')
+var {schema} = require('./classes/graphql/schema')
 
 var root = {
   // Main data query, initializes Scenario object and scenario functions
-  getScenario
+  getScenario,
+  getScores
 };
 
 var app = express();

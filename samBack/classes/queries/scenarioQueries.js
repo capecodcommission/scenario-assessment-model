@@ -1,4 +1,4 @@
-var {Scenario} = require('./Scenario')
+var {Scenario} = require('../objects/Scenario')
 
 getScenario = function({id}) {
 
@@ -106,6 +106,8 @@ getScenario = function({id}) {
     })
   })
 }
+
+
 
 // mutation {
   //     createMessage(input:{

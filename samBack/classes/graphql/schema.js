@@ -52,8 +52,14 @@ type Parcel {
   newSlirm: String
 }
 
+type Scores {
+  nReducTotal: Float
+  capitalCost: Float
+}
+
 type Query {
   getScenario(id: String): Scenario
+  getScores(id: String): Scores
 }
 
 schema {

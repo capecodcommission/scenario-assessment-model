@@ -1,4 +1,4 @@
-var {DB} = require('./db')
+var {DB} = require('../db/db')
 var {Treatment} = require('./Treatment')
 var {SubWatershed} = require('./SubWatershed')
 var {Parcel} = require('./Parcel')
@@ -32,7 +32,7 @@ class Scenario {
     this.fullTechnologies = fullTechnologies
   }
 
-  calcScore(rawScore, type) {
+  calcScore(rawScore, type, parFZCount = null) {
 
     //generate scoring scales
     var capArray = [];
@@ -188,6 +188,43 @@ class Scenario {
         if (jobsPercentile[6] < rawScore && rawScore <= jobsPercentile[7]) {return 8}
         if (jobsPercentile[7] < rawScore && rawScore <= jobsPercentile[8]) {return 9}
         if (rawScore > jobsPercentile[8]) {return 10}
+
+      case 'gc':
+        if (rawScore / 14 <= .1) {return 1}
+        if (.1 < rawScore / 14 && rawScore / 14 <= .2) {return 2}
+        if (.2 < rawScore / 14 && rawScore / 14 <= .3) {return 3}
+        if (.3 < rawScore / 14 && rawScore / 14 <= .4) {return 4}
+        if (.4 < rawScore / 14 && rawScore / 14 <= .5) {return 5}
+        if (.5 < rawScore / 14 && rawScore / 14 <= .6) {return 6}
+        if (.6 < rawScore / 14 && rawScore / 14 <= .7) {return 7}
+        if (.7 < rawScore / 14 && rawScore / 14 <= .8) {return 8}
+        if (.8 < rawScore / 14 && rawScore / 14 <= .9) {return 9}
+        if (.9 < rawScore / 14) {return 10}
+
+      case 'pvla':
+        if (rawScore <= 1.061) {return 1}
+        if (1.061 < rawScore && rawScore <= 1.122) {return 2}
+        if (1.122 < rawScore && rawScore <= 1.183) {return 3}
+        if (1.183 < rawScore && rawScore <= 1.244) {return 4}
+        if (1.244 < rawScore && rawScore <= 1.305) {return 5}
+        if (1.305 < rawScore && rawScore <= 1.366) {return 6}
+        if (1.366 < rawScore && rawScore <= 1.427) {return 7}
+        if (1.427 < rawScore && rawScore <= 1.498) {return 8}
+        if (1.498 < rawScore && rawScore <= 1.549) {return 9}
+        if (1.549 < rawScore) {return 10}
+
+      case 'flood':
+        if (rawScore <= .1 && parFZCount > 0) {return 1}
+        if (.1 < rawScore && rawScore <= .2) {return 2}
+        if (.2 < rawScore && rawScore <= .3) {return 3}
+        if (.3 < rawScore && rawScore <= .4) {return 4}
+        if (.4 < rawScore && rawScore <= .5) {return 5}
+        if (.5 < rawScore && rawScore <= .6) {return 6}
+        if (.6 < rawScore && rawScore <= .7) {return 7}
+        if (.7 < rawScore && rawScore <= .8) {return 8}
+        if (.8 < rawScore && rawScore <= .9) {return 9}
+        if (.9 < rawScore) {return 10}
+        if (parFZCount == 0) {return 0}
     } 
   }
   
@@ -472,7 +509,7 @@ class Scenario {
       }
     })  
     
-    return newGC
+    return this.calcScore(newGC,'gc')
   }
 
   // Obtain Jobs
@@ -591,7 +628,7 @@ class Scenario {
       floodRatio = 0
     }
 
-    return floodRatio
+    return this.calcScore(floodRatio,'flood',parFZCount)
   }
 
   // Obtain property value loss avoided raw score
@@ -626,7 +663,7 @@ class Scenario {
       pvla = 1
     }
 
-    return pvla
+    return this.calcScore(pvla,'pvla')
   }
 }
 

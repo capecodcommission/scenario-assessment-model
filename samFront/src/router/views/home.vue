@@ -17,6 +17,7 @@ export default {
     apolloTest: {
       query: gql`query myQuery($id: String) {
         getScenario(id: $id) {
+          getID
           capitalCost
           omCost
           lcCost
@@ -28,10 +29,6 @@ export default {
           years
         }
       }`,
-      // query: gql`query { getMessage(id: "78bbd9fa0cdb14420ece") {
-      //   author
-      //   content
-      // }}`,
       variables() {
         return {
           id: "2965"
@@ -55,6 +52,8 @@ export default {
       this.chartData.children[2].children[0].size = x.getScenario.years
       this.chartData.children[2].children[1].size = x.getScenario.varPerf
       this.chartData.children[2].children[2].size = x.getScenario.floodRatio
+
+      this.scenarioID = x.getScenario.getID
     }
   },
   data() {
@@ -96,7 +95,9 @@ export default {
           return d.x
         })
       },
-      price: [110, 440],
+      communitySliderVal: [3, 8],
+      costSliderVal: [3, 8],
+      confidenceSliderVal: [3, 8],
       chartData: {
         label: 'weight',
         children: [
@@ -208,12 +209,20 @@ export default {
         })
       }
     },
-    showSliderVal(val) {
+    modifyCommunity(val) {
       this.chartData.children[0].children[0].size = val[0]
-      this.chartData.children[0].children[1].size = val[1]
-      this.chartData.children[0].children[2].size = val[1] - val[0]
-
-      console.log(val[0], val[1], val[1] - val[0])
+      this.chartData.children[0].children[1].size = val[1] - val[0]
+      this.chartData.children[0].children[2].size = 10 - val[1]
+    },
+    modifyCost(val) {
+      this.chartData.children[1].children[0].size = val[0]
+      this.chartData.children[1].children[1].size = val[1] - val[0]
+      this.chartData.children[1].children[2].size = 10 - val[1]
+    },
+    modifyConfidence(val) {
+      this.chartData.children[2].children[0].size = val[0]
+      this.chartData.children[2].children[1].size = val[1] - val[0]
+      this.chartData.children[2].children[2].size = 10 - val[1]
     },
   },
 }
@@ -268,10 +277,6 @@ export default {
           class="pa-0"
         >
           <h5><strong>{{ scenarioID }}</strong></h5>
-          <h5><strong>Treatments</strong></h5>
-          <!-- <div v-for = "treatment in apolloTest.getScenario.scenarioTreatments">
-            <h6>{{treatment.treatmentName}}</h6>
-          </div> -->
         </VCardText>
       </VCard>
       <VCard
@@ -410,12 +415,28 @@ export default {
           :data="chartData"
         />
         <VRangeSlider
-          v-model="price"
+          v-model="communitySliderVal"
           color="black"
-          :max="100"
+          :max="10"
           :min="1"
           :step="1"
-          @end="showSliderVal"
+          @end="modifyCommunity"
+        />
+        <VRangeSlider
+          v-model="costSliderVal"
+          color="black"
+          :max="10"
+          :min="1"
+          :step="1"
+          @end="modifyCost"
+        />
+        <VRangeSlider
+          v-model="confidenceSliderVal"
+          color="black"
+          :max="10"
+          :min="1"
+          :step="1"
+          @end="modifyConfidence"
         />
       </VCard>
       <VCard
