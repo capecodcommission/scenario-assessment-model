@@ -20,7 +20,16 @@ getScores = function({id}) {
     treatmentsData
   ]) {
 
+    a.treatmentIDCustomArray = []
+
     scenarioData = scenarioData.recordset[0]
+
+    treatmentsData.recordset.map((i) => {
+      a.treatmentIDCustomArray.push(i.TreatmentID)
+    })
+
+    a.areaName = scenarioData.AreaName
+    a.areaID = scenarioData.AreaID
 
     b.treatments = treatmentsData.recordset
     b.techMatrix = techMatrix.recordset
@@ -37,7 +46,20 @@ getScores = function({id}) {
     b.yearsPercentile = percentiles[4]
     b.jobsPercentile = percentiles[5]
 
-    return b
+    return Promise.all([
+      a.getWINData(),
+      a.getFTCoeffData()
+    ])
+    .then(function ([
+      winData,
+      ftCoeffData
+    ]) {
+
+      b.tblWinArray = winData.recordset
+      b.ftCoeffArray = ftCoeffData.recordset
+      
+      return b
+    })
   })
 }
 

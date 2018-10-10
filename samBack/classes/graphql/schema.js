@@ -60,6 +60,7 @@ type Scores {
   years: Float
   omCost: Float
   jobs: Float
+  growthComp: Float
 }
 
 type Query {
