@@ -55,6 +55,11 @@ type Parcel {
 type Scores {
   nReducTotal: Float
   capitalCost: Float
+  lcCost: Float
+  years: Float
+  varPerf: Float
+  years: Float
+  omCost: Float
 }
 
 type Query {

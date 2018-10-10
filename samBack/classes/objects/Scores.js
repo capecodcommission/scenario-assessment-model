@@ -158,6 +158,99 @@ class Scores {
 
     return this.calcScore(rawScore, 'cap')
   }
+
+  // Obtain Life Cycle cost
+  lcCost() {
+
+    // Initialize project cost running total
+    var lcKGReduc = 0
+
+    var techArray = this.techMatrix
+    
+    // Loop through Tech Matrix array
+    this.treatments.map((i) => {
+
+      // var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
+      var avgLCCost = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Avg_Life_Cycle_Cost
+
+      // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz
+      lcKGReduc += avgLCCost * i.Nload_Reduction
+    })
+
+    // Math to return the Capital Cost
+    var rawScore = lcKGReduc / this.nReducTotal
+
+    return this.calcScore(rawScore,'lc')
+  }
+  // Obtain useful life in years
+  years() {
+
+    // Init table hooks, sums, and running totals
+    var techArray = this.techMatrix
+    var totalNloadReduc = this.nReducTotal
+    var years = 0
+
+    this.treatments.map((i) => {
+
+      // Get useful life in years from tech matrix
+      var usefulYrs = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Useful_Life_Yrs
+
+      // Math to obtain raw score
+      years += usefulYrs * (i.Nload_Reduction / totalNloadReduc)
+    })
+
+    return this.calcScore(years,'years')
+  }
+  // Obtain variable performance
+  varPerf() {
+
+    // Init table hooks, sums, and running totals
+    var techArray = this.technologies
+    var totalNloadReduc = this.nReducTotal
+    var varP = 0
+
+    this.treatments.map((i) => {
+
+      // Get percent reduction properties from technologies table
+      var tPerfHigh = techArray.find((j) => {return j.technology_id === i.TreatmentType_ID}).n_percent_reduction_high
+      var tPerfLow = techArray.find((j) => {return j.technology_id === i.TreatmentType_ID}).n_percent_reduction_low
+
+      // Math to obtain raw variable performance score
+      varP += (tPerfHigh - tPerfLow) * (i.Nload_Reduction / totalNloadReduc)
+    })
+    
+
+    return this.calcScore(varP,'varp')
+  }
+  
+  // Obtain OM cost
+  omCost() {
+
+    // Initialize project cost running total
+    var omKGReduc = 0
+
+    // var treatArray = this.treatments
+    let techArray = this.techMatrix
+    
+    // Loop through Tech Matrix array
+    // this.techMatrixArray.map((i) => {
+    this.treatments.map((i) => {
+
+      // var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
+      let omCostKG = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).OMCost_kg
+
+      // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz
+      omKGReduc += omCostKG * i.Nload_Reduction
+    })
+
+    // Sum nload reductions from Treatment Wiz
+    // var totalNloadSums = this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
+
+    // Math to return the Capital Cost
+    var rawScore = (omKGReduc)/this.nReducTotal
+
+    return this.calcScore(rawScore, 'om')
+  }
 }
 
 module.exports = {
