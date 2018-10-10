@@ -6,7 +6,7 @@ var {getScores} = require('./classes/queries/scoreQueries')
 var {schema} = require('./classes/graphql/schema')
 
 var root = {
-  // Main data query, initializes Scenario object and scenario functions
+  // Main data queries
   getScenario,
   getScores
 };

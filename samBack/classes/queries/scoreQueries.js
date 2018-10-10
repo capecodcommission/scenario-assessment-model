@@ -1,5 +1,6 @@
 var {Scenario} = require('../objects/Scenario')
 var {Scores} = require('../objects/Scores')
+var {setPercentiles} = require('../helpers/setPercentiles')
 
 getScores = function({id}) {
 
@@ -25,6 +26,16 @@ getScores = function({id}) {
     b.techMatrix = techMatrix.recordset
     b.technologies = technologies.recordset
     b.nReducTotal = scenarioData.Nload_Reduction_Attenuation + scenarioData.Nload_Reduction_Fert + scenarioData.Nload_Reduction_GW + scenarioData.Nload_Reduction_InEmbay + scenarioData.Nload_Reduction_Septic + scenarioData.Nload_Reduction_SW
+
+    // Get percentiles from helper function, passing tech matrix, technologies tables and nreduc total calculated above
+    var percentiles = setPercentiles(techMatrix, technologies, b.nReducTotal)
+
+    b.capPercentile = percentiles[0]
+    b.omPercentile = percentiles[1]
+    b.lcPercentile = percentiles[2]
+    b.perfPercentile = percentiles[3]
+    b.yearsPercentile = percentiles[4]
+    b.jobsPercentile = percentiles[5]
 
     return b
   })
