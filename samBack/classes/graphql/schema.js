@@ -60,6 +60,7 @@ type Scores {
   varPerf: Float
   years: Float
   omCost: Float
+  jobs: Float
 }
 
 type Query {
