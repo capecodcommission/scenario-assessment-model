@@ -218,8 +218,38 @@ class Scores {
       // Math to obtain raw variable performance score
       varP += (tPerfHigh - tPerfLow) * (i.Nload_Reduction / totalNloadReduc)
     })
+    
 
     return this.calcScore(varP,'varp')
+  }
+  
+  // Obtain OM cost
+  omCost() {
+
+    // Initialize project cost running total
+    var omKGReduc = 0
+
+    // var treatArray = this.treatments
+    let techArray = this.techMatrix
+    
+    // Loop through Tech Matrix array
+    // this.techMatrixArray.map((i) => {
+    this.treatments.map((i) => {
+
+      // var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
+      let omCostKG = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).OMCost_kg
+
+      // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz
+      omKGReduc += omCostKG * i.Nload_Reduction
+    })
+
+    // Sum nload reductions from Treatment Wiz
+    // var totalNloadSums = this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
+
+    // Math to return the Capital Cost
+    var rawScore = (omKGReduc)/this.nReducTotal
+
+    return this.calcScore(rawScore, 'om')
   }
 }
 

@@ -58,6 +58,7 @@ type Scores {
   lcCost: Float
   years: Float
   varPerf: Float
+  omCost: Float
 }
 
 type Query {
