@@ -158,6 +158,33 @@ class Scores {
 
     return this.calcScore(rawScore, 'cap')
   }
+
+  // Obtain Jobs
+  jobs() {
+    // $newJobs += (($tProj_kg*$tNReduction*$capFTE) + ($tOM_kg*$tNReduction*$omFTE))/1000000;
+    
+    // Initialize jobs running total
+    var jobs = 0
+
+    // Refer to treatments array to use below in techMatrix
+    var techArray = this.techMatrix
+    
+    // Loop through Tech Matrix array
+    this.treatments.map((i) => {
+      
+      // Get Nload_reduction from Treatment_Wiz in treatArray
+      // var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
+      var projCostKG = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).ProjectCost_kg
+      var capFTE = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).capFTE
+      var omCostKG = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).OMCost_kg
+      var omFTE = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).omFTE
+
+      // Sum up 'jobs' as a running total as below
+      jobs += (((projCostKG * i.Nload_Reduction * capFTE) + (omCostKG * i.Nload_Reduction * omFTE)) / 1000000)
+    })
+    // Return the running 'jobs' total
+    return this.calcScore(jobs,'jobs')
+  }
 }
 
 module.exports = {

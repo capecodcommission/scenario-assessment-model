@@ -55,6 +55,7 @@ type Parcel {
 type Scores {
   nReducTotal: Float
   capitalCost: Float
+  jobs: Float
 }
 
 type Query {
