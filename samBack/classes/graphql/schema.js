@@ -56,6 +56,7 @@ type Scores {
   nReducTotal: Float
   capitalCost: Float
   lcCost: Float
+  years: Float
 }
 
 type Query {

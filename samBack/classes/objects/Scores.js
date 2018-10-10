@@ -182,6 +182,25 @@ class Scores {
 
     return this.calcScore(rawScore,'lc')
   }
+  // Obtain useful life in years
+  years() {
+
+    // Init table hooks, sums, and running totals
+    var techArray = this.techMatrix
+    var totalNloadReduc = this.nReducTotal
+    var years = 0
+
+    this.treatments.map((i) => {
+
+      // Get useful life in years from tech matrix
+      var usefulYrs = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Useful_Life_Yrs
+
+      // Math to obtain raw score
+      years += usefulYrs * (i.Nload_Reduction / totalNloadReduc)
+    })
+
+    return this.calcScore(years,'years')
+  }
 }
 
 module.exports = {
