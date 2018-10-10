@@ -158,6 +158,49 @@ class Scores {
 
     return this.calcScore(rawScore, 'cap')
   }
+
+  // Obtain Life Cycle cost
+  lcCost() {
+
+    // Initialize project cost running total
+    var lcKGReduc = 0
+
+    var techArray = this.techMatrix
+    
+    // Loop through Tech Matrix array
+    this.treatments.map((i) => {
+
+      // var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
+      var avgLCCost = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Avg_Life_Cycle_Cost
+
+      // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz
+      lcKGReduc += avgLCCost * i.Nload_Reduction
+    })
+
+    // Math to return the Capital Cost
+    var rawScore = lcKGReduc / this.nReducTotal
+
+    return this.calcScore(rawScore,'lc')
+  }
+  // Obtain useful life in years
+  years() {
+
+    // Init table hooks, sums, and running totals
+    var techArray = this.techMatrix
+    var totalNloadReduc = this.nReducTotal
+    var years = 0
+
+    this.treatments.map((i) => {
+
+      // Get useful life in years from tech matrix
+      var usefulYrs = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Useful_Life_Yrs
+
+      // Math to obtain raw score
+      years += usefulYrs * (i.Nload_Reduction / totalNloadReduc)
+    })
+
+    return this.calcScore(years,'years')
+  }
 }
 
 module.exports = {
