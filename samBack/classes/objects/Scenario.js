@@ -268,7 +268,7 @@ class Scenario {
   // Retrieve data from tblWin by treatment ids and embayment name
   getWINData() {
     var queryTypeString = this.treatmentIDCustomArray.map(i => {return "'" + i + "'"}).join(',')
-    return DB.executeQuery('SELECT tw.TreatmentID, sw.EconDevType, sw.DensityCat, sw.BioMap2, sw.CWMP, sw.NaturalAttenuation, sw.NewSLIRM FROM CapeCodMA.Treatment_Wiz tw INNER JOIN TBL_Dev.dbo.WIN sw ON geometry::STGeomFromText(tw.POLY_STRING, 0).STIntersects(sw.Shape) = 1 AND tw.TreatmentID in (' + queryTypeString + ') and Embayment = ' + "'" + this.areaName + "'", DB.wmvp3Connect)
+    return DB.executeQuery('SELECT tw.TreatmentID, sw.EconDevType, sw.DensityCat, sw.BioMap2, sw.CWMP, sw.NaturalAttenuation, sw.NewSLIRM, sw.TotalAssessedValue, sw.Waterfront FROM CapeCodMA.Treatment_Wiz tw INNER JOIN TBL_Dev.dbo.WIN sw ON geometry::STGeomFromText(tw.POLY_STRING, 0).STIntersects(sw.Shape) = 1 AND tw.TreatmentID in (' + queryTypeString + ') and Embayment = ' + "'" + this.areaName + "'", DB.wmvp3Connect)
   }
 
   getTechnologiesData() {
@@ -357,83 +357,6 @@ class Scenario {
     return this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
   }
 
-  // Obtain growth compatability
-  growthComp() {
-
-    // Init running totals, nload reduction totals, and table hooks to use inside treatment map
-    var treatGC = 0
-    var newGC = 0
-    var totalNloadReduc = this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
-    var tblWin = this.tblWinArray
-    var techArray =  this.techMatrixArray
-    var ftCoeffArray = this.ftCoeffArray
-
-    this.treatments.map((i) => {
-
-      // Find two properties from tech matrix array by treatment type id
-      var newCompat = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).NewCompat
-
-      if (i.Custom_POLY == 1) {
-
-        tblWin.map((j) => {
-
-          // Find flow through coefficient for each parcel using subwatershed id, set natural attenuation property using flow through coefficient if available
-          var ftCoeff = ftCoeffArray.find((l) => {return l.SUBWATER_ID === j.SUBWATER_ID})
-          if (ftCoeff) {j.NaturalAttenuation = ftCoeff.FLOWTHRUCOEF}
-
-          if (j.EconDevType !== "Limited Development Area" && j.EconDevType !== "Priority Protection Area") {treatGC += newCompat}
-          if (j.DensityCat == 5) {treatGC += 0}
-          if (j.DensityCat == 4) {treatGC += 1}
-          if (j.DensityCat == 3) {treatGC += 2}
-          if (j.DensityCat == 2) {treatGC += 3}
-          if (j.DensityCat == 1) {treatGC += 4}
-          if (j.BioMap2 == 2) {treatGC += newCompat}
-          if (j.CWMP == 2) {treatGC += newCompat}
-          if (j.NaturalAttenuation > .5) {treatGC += newCompat}
-          if (j.NewSLIRM !== 1) {treatGC += newCompat}
-        })
-  
-        if (i.Treatment_Class == "In-Embayment") {
-  
-          newGC += 14 * (i.Nload_Reduction/totalNloadReduc)
-        } else {
-  
-          newGC += (treatGC/i.Treatment_Parcels) * (i.Nload_Reduction/totalNloadReduc)
-        }
-      } else {
-
-        treatGC = 0
-        tblWin.map((j) => {
-
-          // Find flow through coefficient for each parcel using subwatershed id, set natural attenuation property using flow through coefficient if available
-          var ftCoeff = ftCoeffArray.find((l) => {return l.SUBWATER_ID === j.SUBWATER_ID})
-          if (ftCoeff) {j.NaturalAttenuation = ftCoeff.FLOWTHRUCOEF}
-
-          if (j.EconDevType !== "Limited Development Area" && j.EconDevType !== "Priority Protection Area") {treatGC += newCompat}
-          if (j.DensityCat == 5) {treatGC += 0}
-          if (j.DensityCat == 4) {treatGC += 1}
-          if (j.DensityCat == 3) {treatGC += 2}
-          if (j.DensityCat == 2) {treatGC += 3}
-          if (j.DensityCat == 1) {treatGC += 4}
-          if (j.BioMap2 == 2) {treatGC += newCompat}
-          if (j.CWMP == 2) {treatGC += newCompat}
-          if (j.NaturalAttenuation > .5) {treatGC += newCompat}
-          if (j.NewSLIRM !== 1) {treatGC += newCompat}
-        })
-  
-        if (i.Treatment_Class == "In-Embayment") {
-  
-          newGC += 14 * (i.Nload_Reduction/totalNloadReduc)
-        } else {
-  
-          newGC += (treatGC/i.Treatment_Parcels) * (i.Nload_Reduction/totalNloadReduc)
-        }
-      }
-    })  
-    
-    return this.calcScore(newGC,'gc')
-  }
-
   // Obtain flood ratio
   floodRatio() {
 
@@ -487,41 +410,6 @@ class Scenario {
     }
 
     return this.calcScore(floodRatio,'flood',parFZCount)
-  }
-
-  // Obtain property value loss avoided raw score
-  pvla() {
-
-    // Init running totals and property hooks
-    var pvla = 0
-    var embayNReduc = this.nReducInEmbay
-    var slope = parseFloat(this.nConversion.Slope)
-    var intercept = parseFloat(this.nConversion.Intercept)
-    var embayNCalc = this.embayNCalc
-    var waterfrontPropVal = 0
-    var totalPropVal = 0
-
-    // Total property values
-    this.tblWinArray.map((i) => {
-
-      totalPropVal += i.TotalAssessedValue
-
-      if (i.Waterfront === 1) {
-        
-        waterfrontPropVal += i.TotalAssessedValue
-      }
-    })
-
-    if (embayNReduc != null) {
-
-      // Math to obtain property value loss avoided
-      pvla = (((embayNReduc * slope + intercept) / (embayNCalc * slope + intercept)) * .61 * waterfrontPropVal + totalPropVal) / totalPropVal
-    } else {
-
-      pvla = 1
-    }
-
-    return this.calcScore(pvla,'pvla')
   }
 }
 
