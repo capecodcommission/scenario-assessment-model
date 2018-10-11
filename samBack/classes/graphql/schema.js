@@ -62,6 +62,7 @@ type Scores {
   jobs: Float
   growthComp: Float
   pvla: Float
+  floodRatio: Float
 }
 
 type Query {

@@ -410,6 +410,41 @@ class Scenario {
     }
 
     return this.calcScore(floodRatio,'flood',parFZCount)
+  } 
+
+  // Obtain property value loss avoided raw score
+  pvla() {
+
+    // Init running totals and property hooks
+    var pvla = 0
+    var embayNReduc = this.nReducInEmbay
+    var slope = parseFloat(this.nConversion.Slope)
+    var intercept = parseFloat(this.nConversion.Intercept)
+    var embayNCalc = this.embayNCalc
+    var waterfrontPropVal = 0
+    var totalPropVal = 0
+
+    // Total property values
+    this.tblWinArray.map((i) => {
+
+      totalPropVal += i.TotalAssessedValue
+
+      if (i.Waterfront === 1) {
+        
+        waterfrontPropVal += i.TotalAssessedValue
+      }
+    })
+
+    if (embayNReduc != null) {
+
+      // Math to obtain property value loss avoided
+      pvla = (((embayNReduc * slope + intercept) / (embayNCalc * slope + intercept)) * .61 * waterfrontPropVal + totalPropVal) / totalPropVal
+    } else {
+
+      pvla = 1
+    }
+
+    return this.calcScore(pvla,'pvla')
   }
 }
 

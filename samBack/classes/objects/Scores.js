@@ -332,8 +332,63 @@ class Scores {
     return this.calcScore(newGC,'gc')
   }
 
-  // Obtain property value loss avoided raw score
-  pvla() {
+  // Obtain flood ratio
+  floodRatio() {
+
+    // Init running totals and table hooks
+    var treatFZ = 0
+    var floodSum = 0
+    var floodRatio = 0
+    var treatCount = 0
+    var parFZCount = 0
+    var techArray = this.techMatrix
+    var tblWin = this.tblWinArray
+
+    // Get flood zone parcel count for embayment
+    tblWin.map((i) => {
+
+      if (i.NewSLIRM === 1) {
+
+        parFZCount++
+      }
+    })
+
+    this.treatments.map((i) => {
+
+      // Keep running total of treatments, obtain resilience from tech matrix
+      treatCount++
+      var resil = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Resilience
+
+      // If treatment is custom polygon, obtain flood zone sum using parcels within treatment
+      if (i.Custom_POLY == 1) {
+
+        tblWin.map((j) => {
+          
+          treatFZ += j.NewSLIRM
+        })
+  
+        floodSum += treatFZ + resil
+      } else {
+  
+        /// Otherwise, obtain flood zone sum using embayment
+        floodSum += parFZCount * resil
+      }
+    })  
+
+    // Math to obtain raw flood ratio score
+    if (parFZCount > 0) {
+
+      floodRatio = (floodSum / treatCount) / parFZCount
+    } else {
+
+      floodRatio = 0
+    }
+
+    return this.calcScore(floodRatio,'flood',parFZCount)
+  }
+
+    // Obtain property value loss avoided raw score
+    pvla() {
 
     // Init running totals and property hooks
     var pvla = 0
