@@ -27,6 +27,7 @@ type Treatment {
   tblWinArray: [Parcel]
   treatmentParcels: Int
   subWatershedArray: [SubWatershed]
+  treatmentName: String
 }
 
 type SubWatershed {
@@ -57,9 +58,24 @@ type Scores {
   floodRatio: Float
 }
 
+type Summary {
+  towns: [Town]
+  subEmbayments: [SubEmbayment]
+  treatments: [Treatment]
+}
+
+type SubEmbayment {
+  name: String
+}
+
+type Town {
+  name: String
+}
+
 type Query {
   getScenario(id: String): Scenario
   getScores(id: String): Scores
+  getSummary(id: String): Summary
 }
 
 schema {

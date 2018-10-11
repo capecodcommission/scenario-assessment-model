@@ -3,12 +3,14 @@ var graphqlHTTP = require('express-graphql');
 var cors = require('cors')
 var {getScenario} = require('./classes/queries/scenarioQueries')
 var {getScores} = require('./classes/queries/scoreQueries')
+var {getSummary} = require('./classes/queries/summaryQueries')
 var {schema} = require('./classes/graphql/schema')
 
 var root = {
   // Main data queries
   getScenario,
-  getScores
+  getScores,
+  getSummary
 };
 
 var app = express();

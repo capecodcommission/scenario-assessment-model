@@ -17,6 +17,7 @@ export default {
     scoresGraphql: {
       query: gql`query myQuery($id: String) {
         getScores(id: $id) {
+          getID
           capitalCost
           omCost
           lcCost
@@ -30,11 +31,40 @@ export default {
       }`,
       variables() {
         return {
-          id: "2965"
+          id: this.queryInput
         }
       },
       update: function(data) {
         return data
+      },
+      skip() {
+        return !this.queryInput
+      }
+    },
+    summaryData: {
+      query: gql `query myQuery($id: String) {
+        getSummary(id: $id) {
+          towns {
+            name
+          }
+          subEmbayments {
+            name
+          }
+          treatments {
+            treatmentName
+          }
+        }
+      }`,
+      variables() {
+        return {
+          id: this.queryInput
+        }
+      },
+      update: function(data) {
+        return data
+      },
+      skip() {
+        return !this.queryInput
       }
     }
   },
@@ -54,10 +84,16 @@ export default {
 
       this.scenarioID = x.getScores.getID
 
+    },
+    summaryData: function(x) {
+      this.scenarioMunicipalities = x.getSummary.towns
+      this.scenarioSubEmbayments = x.getSummary.subEmbayments
+      this.scenarioTechnologies = x.getSummary.treatments
     }
   },
   data() {
     return {
+      summaryData: '',
       scoresGraphql: '',
       rules: {
         required: value => !!value || 'Required.',
@@ -67,29 +103,15 @@ export default {
           return pattern.test(value) || 'ID must only contain numbers'
         },
       },
-      scenarioID: '1234',
-      scenarioMunicipalities: ['Barnstable', 'Sandwich', 'Mashpee'],
-      scenarioSubEmbayments: [
-        'Princes Cove',
-        'Warrens Cove',
-        'Upper North Bay',
-        'Lower North Bay',
-        'Cotuit Bay',
-        'West Bay',
-        'Eel Pond',
-      ],
+      scenarioID: '',
+      scenarioMunicipalities: [],
+      scenarioSubEmbayments: [],
       percentageNRemovedToMeetTMDL: '97%',
-      scenarioTechnologies: [
-        'Fertilizer Management',
-        'Stormwater Management',
-        'Permeable Reactive Barrier (PRB)',
-        'Dredging/Inlet Widening',
-        'Ecotoilets',
-        'Aquaculture/Oyster Beds',
-      ],
+      scenarioTechnologies: [],
       samScenarioCreated: false,
       dialog: true,
       scenarioInput: '',
+      queryInput: '',
       chartConfig: function(chart) {
         chart.chartFrame().size(function(d) {
           return d.x
@@ -171,6 +193,8 @@ export default {
   },
   mounted: function() {
     this.startMap()
+
+    if (store.state.users.scenario) {this.queryInput = store.state.users.scenario}
   },
   methods: {
     startMap() {
@@ -294,10 +318,10 @@ export default {
         </VCardTitle>
         <VCardText
           v-for="municipality in scenarioMunicipalities"
-          :key="municipality"
+          :key="municipality.name"
           class="pa-0"
         >
-          <h5><strong>{{ municipality }}</strong></h5>
+          <h5><strong>{{ municipality.name }}</strong></h5>
         </VCardText>
       </VCard>
       <VCard
@@ -315,11 +339,11 @@ export default {
         </VCardTitle>
         <VCardText
           v-for="subEmbayment in scenarioSubEmbayments"
-          :key="subEmbayment"
+          :key="subEmbayment.name"
           primary-title
           class="pa-0"
         >
-          <h5><strong>{{ subEmbayment }}</strong></h5>
+          <h5><strong>{{ subEmbayment.name }}</strong></h5>
         </VCardText>
       </VCard>
       <VCard
@@ -356,11 +380,11 @@ export default {
         </VCardTitle>
         <VCardText
           v-for="technology in scenarioTechnologies"
-          :key="technology"
+          :key="technology.treatmentName"
           primary-title
           class="pa-0"
         >
-          <h5><strong>{{ technology }}</strong></h5>
+          <h5><strong>{{ technology.treatmentName }}</strong></h5>
         </VCardText>
       </VCard>
       <VCard
