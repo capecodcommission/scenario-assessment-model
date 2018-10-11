@@ -296,61 +296,31 @@ class Scores {
       // Find two properties from tech matrix array by treatment type id
       var newCompat = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).NewCompat
 
-      if (i.Custom_POLY == 1) {
+      // TODO: Opimization looping through rows
+      tblWin.map((j) => {
 
-        tblWin.map((j) => {
+        // Find flow through coefficient for each parcel using subwatershed id, set natural attenuation property using flow through coefficient if available
+        var ftCoeff = ftCoeffArray.find((l) => {return l.SUBWATER_ID === j.SUBWATER_ID})
+        if (ftCoeff) {j.NaturalAttenuation = ftCoeff.FLOWTHRUCOEF}
 
-          // Find flow through coefficient for each parcel using subwatershed id, set natural attenuation property using flow through coefficient if available
-          var ftCoeff = ftCoeffArray.find((l) => {return l.SUBWATER_ID === j.SUBWATER_ID})
-          if (ftCoeff) {j.NaturalAttenuation = ftCoeff.FLOWTHRUCOEF}
+        if (j.EconDevType !== "Limited Development Area" && j.EconDevType !== "Priority Protection Area") {treatGC += newCompat}
+        if (j.DensityCat == 5) {treatGC += 0}
+        if (j.DensityCat == 4) {treatGC += 1}
+        if (j.DensityCat == 3) {treatGC += 2}
+        if (j.DensityCat == 2) {treatGC += 3}
+        if (j.DensityCat == 1) {treatGC += 4}
+        if (j.BioMap2 == 2) {treatGC += newCompat}
+        if (j.CWMP == 2) {treatGC += newCompat}
+        if (j.NaturalAttenuation > .5) {treatGC += newCompat}
+        if (j.NewSLIRM !== 1) {treatGC += newCompat}
+      })
 
-          if (j.EconDevType !== "Limited Development Area" && j.EconDevType !== "Priority Protection Area") {treatGC += newCompat}
-          if (j.DensityCat == 5) {treatGC += 0}
-          if (j.DensityCat == 4) {treatGC += 1}
-          if (j.DensityCat == 3) {treatGC += 2}
-          if (j.DensityCat == 2) {treatGC += 3}
-          if (j.DensityCat == 1) {treatGC += 4}
-          if (j.BioMap2 == 2) {treatGC += newCompat}
-          if (j.CWMP == 2) {treatGC += newCompat}
-          if (j.NaturalAttenuation > .5) {treatGC += newCompat}
-          if (j.NewSLIRM !== 1) {treatGC += newCompat}
-        })
-  
-        if (i.Treatment_Class == "In-Embayment") {
-  
-          newGC += 14 * (i.Nload_Reduction/totalNloadReduc)
-        } else {
-  
-          newGC += (treatGC/i.Treatment_Parcels) * (i.Nload_Reduction/totalNloadReduc)
-        }
+      if (i.Treatment_Class == "In-Embayment") {
+
+        newGC += 14 * (i.Nload_Reduction/totalNloadReduc)
       } else {
 
-        treatGC = 0
-        tblWin.map((j) => {
-
-          // Find flow through coefficient for each parcel using subwatershed id, set natural attenuation property using flow through coefficient if available
-          var ftCoeff = ftCoeffArray.find((l) => {return l.SUBWATER_ID === j.SUBWATER_ID})
-          if (ftCoeff) {j.NaturalAttenuation = ftCoeff.FLOWTHRUCOEF}
-
-          if (j.EconDevType !== "Limited Development Area" && j.EconDevType !== "Priority Protection Area") {treatGC += newCompat}
-          if (j.DensityCat == 5) {treatGC += 0}
-          if (j.DensityCat == 4) {treatGC += 1}
-          if (j.DensityCat == 3) {treatGC += 2}
-          if (j.DensityCat == 2) {treatGC += 3}
-          if (j.DensityCat == 1) {treatGC += 4}
-          if (j.BioMap2 == 2) {treatGC += newCompat}
-          if (j.CWMP == 2) {treatGC += newCompat}
-          if (j.NaturalAttenuation > .5) {treatGC += newCompat}
-          if (j.NewSLIRM !== 1) {treatGC += newCompat}
-        })
-  
-        if (i.Treatment_Class == "In-Embayment") {
-  
-          newGC += 14 * (i.Nload_Reduction/totalNloadReduc)
-        } else {
-  
-          newGC += (treatGC/i.Treatment_Parcels) * (i.Nload_Reduction/totalNloadReduc)
-        }
+        newGC += (treatGC/i.Treatment_Parcels) * (i.Nload_Reduction/totalNloadReduc)
       }
     })  
     

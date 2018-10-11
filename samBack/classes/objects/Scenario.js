@@ -268,7 +268,7 @@ class Scenario {
   // Retrieve data from tblWin by treatment ids and embayment name
   getWINData() {
     var queryTypeString = this.treatmentIDCustomArray.map(i => {return "'" + i + "'"}).join(',')
-    return DB.executeQuery('SELECT tw.TreatmentID, sw.* FROM CapeCodMA.Treatment_Wiz tw INNER JOIN TBL_Dev.dbo.WIN sw ON geometry::STGeomFromText(tw.POLY_STRING, 0).STIntersects(sw.Shape) = 1 AND tw.TreatmentID in (' + queryTypeString + ') and Embayment = ' + "'" + this.areaName + "'", DB.wmvp3Connect)
+    return DB.executeQuery('SELECT tw.TreatmentID, sw.EconDevType, sw.DensityCat, sw.BioMap2, sw.CWMP, sw.NaturalAttenuation, sw.NewSLIRM FROM CapeCodMA.Treatment_Wiz tw INNER JOIN TBL_Dev.dbo.WIN sw ON geometry::STGeomFromText(tw.POLY_STRING, 0).STIntersects(sw.Shape) = 1 AND tw.TreatmentID in (' + queryTypeString + ') and Embayment = ' + "'" + this.areaName + "'", DB.wmvp3Connect)
   }
 
   getTechnologiesData() {
