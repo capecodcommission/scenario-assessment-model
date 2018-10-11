@@ -1,6 +1,7 @@
 class Scores {
 
-  constructor(techMatrix, technologies, nReducTotal, treatments, capPercentile, omPercentile, lcPercentile, perfPercentile, yearsPercentile, jobsPercentile, tblWinArray, ftCoeffArray, nReducInEmbay, nConversion, embayNCalc) {
+  constructor(id, techMatrix, technologies, nReducTotal, treatments, capPercentile, omPercentile, lcPercentile, perfPercentile, yearsPercentile, jobsPercentile, tblWinArray, ftCoeffArray, nReducInEmbay, nConversion, embayNCalc) {
+    this.id = id
     this.techMatrix = techMatrix
     this.technologies = technologies
     this.nReducTotal = nReducTotal
@@ -16,6 +17,10 @@ class Scores {
     this.nReducInEmbay = nReducInEmbay
     this.nConversion = nConversion
     this.embayNCalc = embayNCalc
+  }
+
+  getID() {
+    return this.id
   }
 
   calcScore(rawScore, type, parFZCount = null) {

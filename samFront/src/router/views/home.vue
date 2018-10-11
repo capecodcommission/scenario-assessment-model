@@ -14,10 +14,9 @@ export default {
   },
   components: { Layout, ChartSunburst },
   apollo: {
-    apolloTest: {
+    scoresGraphql: {
       query: gql`query myQuery($id: String) {
-        getScenario(id: $id) {
-          getID
+        getScores(id: $id) {
           capitalCost
           omCost
           lcCost
@@ -40,25 +39,26 @@ export default {
     }
   },
   watch: {
-    apolloTest: function(x) {
-      this.chartData.children[0].children[0].size = x.getScenario.growthComp
-      this.chartData.children[0].children[1].size = x.getScenario.jobs
-      this.chartData.children[0].children[2].size = x.getScenario.pvla
+    scoresGraphql: function(x) {
+      this.chartData.children[0].children[0].size = x.getScores.growthComp
+      this.chartData.children[0].children[1].size = x.getScores.jobs
+      this.chartData.children[0].children[2].size = x.getScores.pvla
 
-      this.chartData.children[1].children[0].size = x.getScenario.capitalCost
-      this.chartData.children[1].children[1].size = x.getScenario.omCost
-      this.chartData.children[1].children[2].size = x.getScenario.lcCost
+      this.chartData.children[1].children[0].size = x.getScores.capitalCost
+      this.chartData.children[1].children[1].size = x.getScores.omCost
+      this.chartData.children[1].children[2].size = x.getScores.lcCost
 
-      this.chartData.children[2].children[0].size = x.getScenario.years
-      this.chartData.children[2].children[1].size = x.getScenario.varPerf
-      this.chartData.children[2].children[2].size = x.getScenario.floodRatio
+      this.chartData.children[2].children[0].size = x.getScores.years
+      this.chartData.children[2].children[1].size = x.getScores.varPerf
+      this.chartData.children[2].children[2].size = x.getScores.floodRatio
 
-      this.scenarioID = x.getScenario.getID
+      this.scenarioID = x.getScores.getID
+
     }
   },
   data() {
     return {
-      apolloTest: '',
+      scoresGraphql: '',
       rules: {
         required: value => !!value || 'Required.',
         counter: value => value.length === 4 || 'Must be 4 characters',

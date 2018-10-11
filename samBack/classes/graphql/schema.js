@@ -7,17 +7,8 @@ type Scenario {
   getID: ID!
   getCreatedBy: String
   getNloadSums: Float
-  capitalCost: Float
-  omCost: Float
-  lcCost: Float
-  jobs: Float
   scenarioTreatments: [Treatment]
   subWaterIDArray: [String]
-  growthComp: Float
-  years: Float
-  varPerf: Float
-  floodRatio: Float
-  pvla: Float
 }
 
 type Treatment {
@@ -53,6 +44,7 @@ type Parcel {
 }
 
 type Scores {
+  getID: String
   nReducTotal: Float
   capitalCost: Float
   lcCost: Float
