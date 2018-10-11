@@ -297,7 +297,9 @@ class Scores {
       var newCompat = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).NewCompat
 
       // TODO: Opimization looping through rows
-      tblWin.map((j) => {
+      var tblFiltered = tblWin.filter((j) => {return j.TreatmentID === i.TreatmentID})
+
+      tblFiltered.map((j) => {
 
         // Find flow through coefficient for each parcel using subwatershed id, set natural attenuation property using flow through coefficient if available
         var ftCoeff = ftCoeffArray.find((l) => {return l.SUBWATER_ID === j.SUBWATER_ID})
@@ -326,6 +328,8 @@ class Scores {
     
     return this.calcScore(newGC,'gc')
   }
+
+
 }
 
 module.exports = {
