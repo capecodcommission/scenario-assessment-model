@@ -61,6 +61,7 @@ type Scores {
   omCost: Float
   jobs: Float
   growthComp: Float
+  pvla: Float
 }
 
 type Query {

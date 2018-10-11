@@ -20,21 +20,22 @@ getScores = function({id}) {
     treatmentsData
   ]) {
 
-    a.treatmentIDCustomArray = []
-
     scenarioData = scenarioData.recordset[0]
+
+    a.areaName = scenarioData.AreaName
+    a.areaID = scenarioData.AreaID
+    a.nReducInEmbay = scenarioData.Nload_Reduction_InEmbay
+    a.treatmentIDCustomArray = []
 
     treatmentsData.recordset.map((i) => {
       a.treatmentIDCustomArray.push(i.TreatmentID)
     })
 
-    a.areaName = scenarioData.AreaName
-    a.areaID = scenarioData.AreaID
-
+    b.embayNCalc = scenarioData.Nload_Calculated_InEmbay
+    b.nReducTotal = scenarioData.Nload_Reduction_Attenuation + scenarioData.Nload_Reduction_Fert + scenarioData.Nload_Reduction_GW + scenarioData.Nload_Reduction_InEmbay + scenarioData.Nload_Reduction_Septic + scenarioData.Nload_Reduction_SW
     b.treatments = treatmentsData.recordset
     b.techMatrix = techMatrix.recordset
     b.technologies = technologies.recordset
-    b.nReducTotal = scenarioData.Nload_Reduction_Attenuation + scenarioData.Nload_Reduction_Fert + scenarioData.Nload_Reduction_GW + scenarioData.Nload_Reduction_InEmbay + scenarioData.Nload_Reduction_Septic + scenarioData.Nload_Reduction_SW
 
     // Get percentiles from helper function, passing tech matrix, technologies tables and nreduc total calculated above
     var percentiles = setPercentiles(techMatrix, technologies, b.nReducTotal)
@@ -48,15 +49,18 @@ getScores = function({id}) {
 
     return Promise.all([
       a.getWINData(),
-      a.getFTCoeffData()
+      a.getFTCoeffData(),
+      a.getNConversionData()
     ])
     .then(function ([
       winData,
-      ftCoeffData
+      ftCoeffData,
+      nConversionData
     ]) {
 
       b.tblWinArray = winData.recordset
       b.ftCoeffArray = ftCoeffData.recordset
+      b.nConversion = nConversionData.recordset[0]
       
       return b
     })
