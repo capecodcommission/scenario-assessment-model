@@ -25,7 +25,7 @@ export default [
     beforeEnter(routeTo, routeFrom, next) {
       if (
         !isNaN(routeTo.params.scenario) &&
-        routeTo.params.scenario.length === 4
+        (routeTo.params.scenario.length === 3 || routeTo.params.scenario.length === 4)
       ) {
         store.dispatch('users/updateScenarioID', {
           scenario: routeTo.params.scenario,

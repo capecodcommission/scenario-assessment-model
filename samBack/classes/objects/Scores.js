@@ -149,8 +149,8 @@ class Scores {
   capitalCost() {
 
     // Initialize project cost running total
-    var projKGReduc = 0
-
+    var newCap = 0
+    var totalNReduc = this.nReducTotal
     var techArray = this.techMatrix
     
     // Loop through Treatments array
@@ -159,22 +159,20 @@ class Scores {
       // Get ProjectCost_kg from Tech Matrix
       var projCostKG = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).ProjectCost_kg
 
-      // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz
-      projKGReduc += projCostKG * i.Nload_Reduction
+      // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz / totalNReduc
+      // $newCap += ($tProj_kg*$tNReduction)/$totalNreduc;
+      newCap += (projCostKG * i.Nload_Reduction) / totalNReduc
     })
 
-    // Math to return the Capital Cost
-    var rawScore = projKGReduc / this.nReducTotal
-
-    return this.calcScore(rawScore, 'cap')
+    return this.calcScore(newCap, 'cap')
   }
 
   // Obtain Life Cycle cost
   lcCost() {
 
     // Initialize project cost running total
-    var lcKGReduc = 0
-
+    var newVarC = 0
+    var totalNReduc = this.nReducTotal
     var techArray = this.techMatrix
     
     // Loop through Tech Matrix array
@@ -183,22 +181,20 @@ class Scores {
       // var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
       var avgLCCost = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Avg_Life_Cycle_Cost
 
-      // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz
-      lcKGReduc += avgLCCost * i.Nload_Reduction
+      // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz / totalNReduc
+      // $newVarC += ($tLC_kg*$tNReduction)/$totalNreduc;
+      newVarC += (avgLCCost * i.Nload_Reduction) / totalNReduc
     })
 
-    // Math to return the Capital Cost
-    var rawScore = lcKGReduc / this.nReducTotal
-
-    return this.calcScore(rawScore,'lc')
+    return this.calcScore(newVarC,'lc')
   }
   // Obtain useful life in years
   years() {
 
     // Init table hooks, sums, and running totals
     var techArray = this.techMatrix
-    var totalNloadReduc = this.nReducTotal
-    var years = 0
+    var totalNReduc = this.nReducTotal
+    var newYears = 0
 
     this.treatments.map((i) => {
 
@@ -206,10 +202,11 @@ class Scores {
       var usefulYrs = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Useful_Life_Yrs
 
       // Math to obtain raw score
-      years += usefulYrs * (i.Nload_Reduction / totalNloadReduc)
+      // $newYears += ($years)*($tNReduction/$totalNreduc);
+      newYears += usefulYrs * (i.Nload_Reduction / totalNReduc)
     })
 
-    return this.calcScore(years,'years')
+    return this.calcScore(newYears,'years')
   }
   // Obtain variable performance
   varPerf() {
@@ -217,7 +214,7 @@ class Scores {
     // Init table hooks, sums, and running totals
     var techArray = this.technologies
     var totalNloadReduc = this.nReducTotal
-    var varP = 0
+    var newVarP = 0
 
     this.treatments.map((i) => {
 
@@ -226,20 +223,20 @@ class Scores {
       var tPerfLow = techArray.find((j) => {return j.technology_id === i.TreatmentType_ID}).n_percent_reduction_low
 
       // Math to obtain raw variable performance score
-      varP += (tPerfHigh - tPerfLow) * (i.Nload_Reduction / totalNloadReduc)
+      // $newVarP += ($tPerfHigh - $tPerfLow)*($tNReduction/$totalNreduc);
+      newVarP += (tPerfHigh - tPerfLow) * (i.Nload_Reduction / totalNloadReduc)
     })
     
 
-    return this.calcScore(varP,'varp')
+    return this.calcScore(newVarP,'varp')
   }
   
   // Obtain OM cost
   omCost() {
 
     // Initialize project cost running total
-    var omKGReduc = 0
-
-    // var treatArray = this.treatments
+    var newOM = 0
+    var totalNReduc = this.nReducTotal
     let techArray = this.techMatrix
     
     // Loop through Tech Matrix array
@@ -250,23 +247,17 @@ class Scores {
       let omCostKG = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).OMCost_kg
 
       // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz
-      omKGReduc += omCostKG * i.Nload_Reduction
+      // $newOM += ($tOM_kg*$tNReduction)/$totalNreduc;
+      newOM += (omCostKG * i.Nload_Reduction) / totalNReduc
     })
 
-    // Sum nload reductions from Treatment Wiz
-    // var totalNloadSums = this.nReducAtt + this.nReducFert + this.nReducGW + this.nReducInEmbay + this.nReducSeptic + this.nReducSW
-
-    // Math to return the Capital Cost
-    var rawScore = (omKGReduc)/this.nReducTotal
-
-    return this.calcScore(rawScore, 'om')
+    return this.calcScore(newOM, 'om')
   }
   // Obtain Jobs
   jobs() {
-    // $newJobs += (($tProj_kg*$tNReduction*$capFTE) + ($tOM_kg*$tNReduction*$omFTE))/1000000;
     
     // Initialize jobs running total
-    var jobs = 0
+    var newJobs = 0
 
     // Refer to treatments array to use below in techMatrix
     var techArray = this.techMatrix
@@ -282,10 +273,11 @@ class Scores {
       var omFTE = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).omFTE
 
       // Sum up 'jobs' as a running total as below
-      jobs += (((projCostKG * i.Nload_Reduction * capFTE) + (omCostKG * i.Nload_Reduction * omFTE)) / 1000000)
+      // $newJobs += (($tProj_kg*$tNReduction*$capFTE) + ($tOM_kg*$tNReduction*$omFTE))/1000000;
+      newJobs += ((projCostKG * i.Nload_Reduction * capFTE) + (omCostKG * i.Nload_Reduction * omFTE)) / 1000000
     })
     // Return the running 'jobs' total
-    return this.calcScore(jobs,'jobs')
+    return this.calcScore(newJobs,'jobs')
   }
 
   // Obtain growth compatability
@@ -294,7 +286,7 @@ class Scores {
     // Init running totals, nload reduction totals, and table hooks to use inside treatment map
     var treatGC = 0
     var newGC = 0
-    var totalNloadReduc = this.nReducTotal
+    var totalNReduc = this.nReducTotal
     var tblWin = this.tblWinArray
     var techArray =  this.techMatrix
     var ftCoeffArray = this.ftCoeffArray
@@ -327,10 +319,12 @@ class Scores {
 
       if (i.Treatment_Class == "In-Embayment") {
 
-        newGC += 14 * (i.Nload_Reduction/totalNloadReduc)
+        // $newGC += (14)*($tNReduction/$totalNreduc);
+        newGC += 14 * (i.Nload_Reduction/totalNReduc)
       } else {
 
-        newGC += (treatGC/i.Treatment_Parcels) * (i.Nload_Reduction/totalNloadReduc)
+        // $newGC += ($treatGC/$tParcels)*($tNReduction/$totalNreduc);
+        newGC += (treatGC/i.Treatment_Parcels) * (i.Nload_Reduction/totalNReduc)
       }
     })  
     
@@ -383,6 +377,7 @@ class Scores {
     // Math to obtain raw flood ratio score
     if (parFZCount > 0) {
 
+      // $flood_ratio = ($floodSum/$tCount)/$parFZcount;
       floodRatio = (floodSum / treatCount) / parFZCount
     } else {
 
@@ -392,8 +387,8 @@ class Scores {
     return this.calcScore(floodRatio,'flood',parFZCount)
   }
 
-    // Obtain property value loss avoided raw score
-    pvla() {
+  // Obtain property value loss avoided raw score
+  pvla() {
 
     // Init running totals and property hooks
     var pvla = 0
@@ -418,6 +413,7 @@ class Scores {
     if (embayNReduc != null) {
 
       // Math to obtain property value loss avoided
+      // $pvla = ((($embayNreduc*$slope+$intercept)/($embayNcalc*$slope+$intercept))*0.61*$waterfront_prop_value + $total_prop_value)/$total_prop_value;
       pvla = (((embayNReduc * slope + intercept) / (embayNCalc * slope + intercept)) * .61 * waterfrontPropVal + totalPropVal) / totalPropVal
     } else {
 

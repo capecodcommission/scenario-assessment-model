@@ -70,6 +70,7 @@ export default {
   },
   watch: {
     scoresGraphql: function(x) {
+
       this.chartData.children[0].children[0].size = x.getScores.growthComp
       this.chartData.children[0].children[1].size = x.getScores.jobs
       this.chartData.children[0].children[2].size = x.getScores.pvla
@@ -97,10 +98,10 @@ export default {
       scoresGraphql: '',
       rules: {
         required: value => !!value || 'Required.',
-        counter: value => value.length === 4 || 'Must be 4 characters',
+        counter: value => 3 >= value.length && value.length <= 4 || 'Must be 3-4 digits',
         email: value => {
           const pattern = /^\d+$/
-          return pattern.test(value) || 'ID must only contain numbers'
+          return pattern.test(value) || 'ID must only contain digits'
         },
       },
       scenarioID: '',
@@ -117,9 +118,9 @@ export default {
           return d.x
         })
       },
-      communitySliderVal: [3, 8],
-      costSliderVal: [3, 8],
-      confidenceSliderVal: [3, 8],
+      communitySliderVal: [33, 66],
+      costSliderVal: [33, 66],
+      confidenceSliderVal: [33, 66],
       chartData: {
         label: 'weight',
         children: [
@@ -182,7 +183,7 @@ export default {
     ...authComputed,
     fullScenario() {
       return this.$route.params.scenario
-    },
+    }
   },
   props: {
     scenario: {
@@ -234,19 +235,38 @@ export default {
       }
     },
     modifyCommunity(val) {
-      this.chartData.children[0].children[0].size = val[0]
-      this.chartData.children[0].children[1].size = val[1] - val[0]
-      this.chartData.children[0].children[2].size = 10 - val[1]
+
+      var commTotal =  this.scoresGraphql.getScores.growthComp + this.scoresGraphql.getScores.jobs + this.scoresGraphql.getScores.pvla
+      var growthCompSliderVal = commTotal * ( val[0] / 100 )
+      var jobsSliderVal = commTotal * ( (val[1] - val[0]) / 100 )
+      var pvlaSliderVal = commTotal * ( (100 - val[1]) / 100 )
+
+
+      this.chartData.children[0].children[0].size = growthCompSliderVal
+      this.chartData.children[0].children[1].size =  jobsSliderVal
+      this.chartData.children[0].children[2].size = pvlaSliderVal
     },
     modifyCost(val) {
-      this.chartData.children[1].children[0].size = val[0]
-      this.chartData.children[1].children[1].size = val[1] - val[0]
-      this.chartData.children[1].children[2].size = 10 - val[1]
+
+      var costTotal =  this.scoresGraphql.getScores.capitalCost + this.scoresGraphql.getScores.omCost + this.scoresGraphql.getScores.lcCost
+      var capSliderVal = costTotal * ( val[0] / 100 )
+      var omSliderVal = costTotal * ( (val[1] - val[0]) / 100 )
+      var lcSliderVal = costTotal * ( (100 - val[1]) / 100 )
+
+      this.chartData.children[1].children[0].size = capSliderVal
+      this.chartData.children[1].children[1].size = omSliderVal
+      this.chartData.children[1].children[2].size = lcSliderVal
     },
     modifyConfidence(val) {
-      this.chartData.children[2].children[0].size = val[0]
-      this.chartData.children[2].children[1].size = val[1] - val[0]
-      this.chartData.children[2].children[2].size = 10 - val[1]
+
+      var confTotal =  this.scoresGraphql.getScores.years + this.scoresGraphql.getScores.varPerf + this.scoresGraphql.getScores.floodRatio
+      var yearsSliderVal = confTotal * ( val[0] / 100 )
+      var varpSliderVal = confTotal * ( (val[1] - val[0]) / 100 )
+      var floodSliderVal = confTotal * ( (100 - val[1]) / 100 )
+
+      this.chartData.children[2].children[0].size = yearsSliderVal
+      this.chartData.children[2].children[1].size = varpSliderVal
+      this.chartData.children[2].children[2].size = floodSliderVal
     },
   },
 }
@@ -441,7 +461,7 @@ export default {
         <VRangeSlider
           v-model="communitySliderVal"
           color="black"
-          :max="10"
+          :max="100"
           :min="1"
           :step="1"
           @end="modifyCommunity"
@@ -449,7 +469,7 @@ export default {
         <VRangeSlider
           v-model="costSliderVal"
           color="black"
-          :max="10"
+          :max="100"
           :min="1"
           :step="1"
           @end="modifyCost"
@@ -457,7 +477,7 @@ export default {
         <VRangeSlider
           v-model="confidenceSliderVal"
           color="black"
-          :max="10"
+          :max="100"
           :min="1"
           :step="1"
           @end="modifyConfidence"
