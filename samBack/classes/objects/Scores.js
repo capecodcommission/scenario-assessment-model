@@ -212,15 +212,15 @@ class Scores {
   varPerf() {
 
     // Init table hooks, sums, and running totals
-    var techArray = this.technologies
+    var techArray = this.techMatrix
     var totalNloadReduc = this.nReducTotal
     var newVarP = 0
 
     this.treatments.map((i) => {
 
       // Get percent reduction properties from technologies table
-      var tPerfHigh = techArray.find((j) => {return j.technology_id === i.TreatmentType_ID}).n_percent_reduction_high
-      var tPerfLow = techArray.find((j) => {return j.technology_id === i.TreatmentType_ID}).n_percent_reduction_low
+      var tPerfHigh = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).n_percent_reduction_high
+      var tPerfLow = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).n_percent_reduction_low
 
       // Math to obtain raw variable performance score
       // $newVarP += ($tPerfHigh - $tPerfLow)*($tNReduction/$totalNreduc);
@@ -268,13 +268,17 @@ class Scores {
       // Get Nload_reduction from Treatment_Wiz in treatArray
       // var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
       var projCostKG = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).ProjectCost_kg
+      projCostKG = projCostKG || 0
       var capFTE = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).capFTE
+      capFTE = capFTE || 0
       var omCostKG = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).OMCost_kg
+      omCostKG = omCostKG || 0
       var omFTE = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).omFTE
+      omFTE = omFTE || 0
 
       // Sum up 'jobs' as a running total as below
       // $newJobs += (($tProj_kg*$tNReduction*$capFTE) + ($tOM_kg*$tNReduction*$omFTE))/1000000;
-      newJobs += ((projCostKG * i.Nload_Reduction * capFTE) + (omCostKG * i.Nload_Reduction * omFTE)) / 1000000
+      newJobs += ((parseFloat(projCostKG) * i.Nload_Reduction * parseFloat(capFTE)) + (parseFloat(omCostKG) * i.Nload_Reduction * parseFloat(omFTE))) / 1000000
     })
     // Return the running 'jobs' total
     return this.calcScore(newJobs,'jobs')
@@ -289,21 +293,18 @@ class Scores {
     var totalNReduc = this.nReducTotal
     var tblWin = this.tblWinArray
     var techArray =  this.techMatrix
-    var ftCoeffArray = this.ftCoeffArray
 
     this.treatments.map((i) => {
 
       // Find two properties from tech matrix array by treatment type id
       var newCompat = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).NewCompat
 
+      newCompat = newCompat || 0
+
       // TODO: Opimization looping through rows
       var tblFiltered = tblWin.filter((j) => {return j.TreatmentID === i.TreatmentID})
 
       tblFiltered.map((j) => {
-
-        // Find flow through coefficient for each parcel using subwatershed id, set natural attenuation property using flow through coefficient if available
-        var ftCoeff = ftCoeffArray.find((l) => {return l.SUBWATER_ID === j.SUBWATER_ID})
-        if (ftCoeff) {j.NaturalAttenuation = ftCoeff.FLOWTHRUCOEF}
 
         if (j.EconDevType !== "Limited Development Area" && j.EconDevType !== "Priority Protection Area") {treatGC += newCompat}
         if (j.DensityCat == 5) {treatGC += 0}
@@ -313,7 +314,7 @@ class Scores {
         if (j.DensityCat == 1) {treatGC += 4}
         if (j.BioMap2 == 2) {treatGC += newCompat}
         if (j.CWMP == 2) {treatGC += newCompat}
-        if (j.NaturalAttenuation > .5) {treatGC += newCompat}
+        if (j.FLOWTHRUCOEF > .5) {treatGC += newCompat}
         if (j.NewSLIRM !== 1) {treatGC += newCompat}
       })
 
@@ -357,6 +358,7 @@ class Scores {
       // Keep running total of treatments, obtain resilience from tech matrix
       treatCount++
       var resil = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Resilience
+      resil = resil || 0
 
       // If treatment is custom polygon, obtain flood zone sum using parcels within treatment
       if (i.Custom_POLY == 1) {

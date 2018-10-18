@@ -1,4 +1,4 @@
-setPercentiles = function(techMatrix, technologies, nReducTotal) {
+setPercentiles = function(techMatrix, nReducTotal) {
 
   // Generate percentiles
   // Only needs to be calculated once
@@ -9,26 +9,29 @@ setPercentiles = function(techMatrix, technologies, nReducTotal) {
   var yearsArray = [];
   var jobsArray = [];
   var arrays = []
-  var tPerfHigh = 0
-  var tPerfLow = 0
   var delta = 0
   var job = 0
   var kd = []
   var percentiles = []
 
-  techMatrix.recordset.map((i) => {
+  techMatrix.map((i) => {
 
-    var techRow = technologies.recordset.find((j) => {return j.technology_id === i.Technology_ID})
-
-    // Get percent reduction properties from technologies table
-    tPerfHigh = techRow.n_percent_reduction_high
-    tPerfLow = techRow.n_percent_reduction_low
+    i.n_percent_reduction_high = parseFloat(i.n_percent_reduction_high)
+    i.n_percent_reduction_low = parseFloat(i.n_percent_reduction_low)
+    i.ProjectCost_kg = parseFloat(i.ProjectCost_kg)
+    i.capFTE = parseFloat(i.capFTE)
+    i.OMCost_kg = parseFloat(i.OMCost_kg)
+    i.omFTE = parseFloat(i.omFTE)
+    i.Avg_Life_Cycle_Cost = parseFloat(i.Avg_Life_Cycle_Cost)
+    i.Useful_Life_Yrs = parseFloat(i.Useful_Life_Yrs)
 
     // $delta = $row->PctRemoval_high-$row->PctRemoval_low;
-    delta = tPerfHigh - tPerfLow
+    delta = i.n_percent_reduction_high - i.n_percent_reduction_low
 
     // $job = (($row->ProjectCost_kg*$totalNreduc*$row->capFTE) + ($row->OMCost_kg*$totalNreduc*$row->omFTE))/1000000;
     job = ((i.ProjectCost_kg * nReducTotal * i.capFTE) + (i.OMCost_kg * nReducTotal * i.omFTE)) / 1000000
+
+    job = job || 0
 
     capArray.push(i.ProjectCost_kg)
     omArray.push(i.OMCost_kg)

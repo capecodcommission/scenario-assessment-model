@@ -1,62 +1,27 @@
-var sql = require("mssql");
+const Sequelize = require('sequelize')
 
 class DB {
-
-  constructor (wmvp3Connect, tmConnect) {
-
-    this.wmvp3Connect = wmvp3Connect
-    this.tmConnect = tmConnect
+  constructor (sequelize) {
+    this.sequelize = sequelize
   }
-  
-  // Execute query to connection pools
-  executeQuery(query, connection) {
-  
-    var request = new sql.Request(connection)
-  
-    return request.query(query)
+  connect() {
+    this.sequelize.authenticate()
+    .then(() => {
+      console.log('connected')
+    })
+    .catch((err) => {
+      console.log('error',err)
+    })
   }
-}
-
-var wmvpConfig = {
-  user: 'DBAccess',
-  password: 'Acce$$DB',
-  server: '10.10.1.174',
-  port: '65335',
-  database: 'wMVP3_CapeCodMA',
-  stream: true,
-  requestTimeout: 300000,
-  connectionTimeout: 300000,
-  pool: {
-    max: 100,
-    min: 0,
-    idleTimeoutMillis: 300000
+  executeQuery(query) {
+    return this.sequelize.query(query)
   }
 }
 
-var tmConfig = {
-  user: 'DBAccess',
-  password: 'Acce$$DB',
-  server: '10.10.1.174',
-  port: '65335',
-  database: 'Tech_Matrix',
-  stream: true,
-  requestTimeout: 300000,
-  connectionTimeout: 300000,
-  pool: {
-    max: 100,
-    min: 0,
-    idleTimeoutMillis: 300000
-  }
-}
-
-var wmvpConnect = new sql.ConnectionPool(wmvpConfig)
-var tmConnect = new sql.ConnectionPool(tmConfig)
-
-var initDB = new DB(wmvpConnect, tmConnect)
-initDB.wmvp3Connect.connect()
-initDB.tmConnect.connect()
+const sequelize = new Sequelize('postgres://postgres:postgres@localhost:5432/SAM_GEODB');
+var initDB = new DB(sequelize)
+initDB.connect()
 
 module.exports = {
-  
   DB: initDB
 }

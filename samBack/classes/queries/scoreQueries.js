@@ -9,36 +9,40 @@ getScores = function({id}) {
 
   return Promise.all([
     a.getAllTechMatrixData(),
-    a.getAllTechnologiesData(),
     a.getScenarioData(),
     a.getTreatmentsData()
   ])
   .then(function ([
     techMatrix,
-    technologies,
     scenarioData,
     treatmentsData
   ]) {
 
-    scenarioData = scenarioData.recordset[0]
+    scenarioData = scenarioData[0][0]
+    scenarioData.Nload_Reduction_Attenuation = scenarioData.Nload_Reduction_Attenuation || 0
+    scenarioData.Nload_Reduction_InEmbay = scenarioData.Nload_Reduction_InEmbay || 0
+    scenarioData.Nload_Reduction_Fert = scenarioData.Nload_Reduction_Fert || 0
+    scenarioData.Nload_Reduction_GW = scenarioData.Nload_Reduction_GW || 0
+    scenarioData.Nload_Reduction_InEmbay = scenarioData.Nload_Reduction_InEmbay || 0
+    scenarioData.Nload_Reduction_Septic = scenarioData.Nload_Reduction_Septic || 0
+    scenarioData.Nload_Reduction_SW = scenarioData.Nload_Reduction_SW || 0
 
     a.areaName = scenarioData.AreaName
     a.areaID = scenarioData.AreaID
-    a.nReducInEmbay = scenarioData.Nload_Reduction_InEmbay
+    a.nReducInEmbay = parseFloat(scenarioData.Nload_Reduction_InEmbay)
     a.treatmentIDCustomArray = []
 
-    treatmentsData.recordset.map((i) => {
+    treatmentsData[0].map((i) => {
       a.treatmentIDCustomArray.push(i.TreatmentID)
     })
 
-    b.embayNCalc = scenarioData.Nload_Calculated_InEmbay
-    b.nReducTotal = scenarioData.Nload_Reduction_Attenuation + scenarioData.Nload_Reduction_Fert + scenarioData.Nload_Reduction_GW + scenarioData.Nload_Reduction_InEmbay + scenarioData.Nload_Reduction_Septic + scenarioData.Nload_Reduction_SW
-    b.treatments = treatmentsData.recordset
-    b.techMatrix = techMatrix.recordset
-    b.technologies = technologies.recordset
+    b.embayNCalc = parseFloat(scenarioData.Nload_Calculated_InEmbay)
+    b.nReducTotal = parseFloat(scenarioData.Nload_Reduction_Attenuation) + parseFloat(scenarioData.Nload_Reduction_Fert) + parseFloat(scenarioData.Nload_Reduction_GW) + parseFloat(scenarioData.Nload_Reduction_InEmbay) + parseFloat(scenarioData.Nload_Reduction_Septic) + parseFloat(scenarioData.Nload_Reduction_SW)
+    b.treatments = treatmentsData[0]
+    b.techMatrix = techMatrix[0]
 
-    // Get percentiles from helper function, passing tech matrix, technologies tables and nreduc total calculated above
-    var percentiles = setPercentiles(techMatrix, technologies, b.nReducTotal)
+    // Get percentiles from helper function, passing tech matrix and nreduc total calculated above
+    var percentiles = setPercentiles(techMatrix[0], b.nReducTotal)
 
     b.capPercentile = percentiles[0]
     b.omPercentile = percentiles[1]
@@ -58,9 +62,9 @@ getScores = function({id}) {
       nConversionData
     ]) {
 
-      b.tblWinArray = winData.recordset
-      b.ftCoeffArray = ftCoeffData.recordset
-      b.nConversion = nConversionData.recordset[0]
+      b.tblWinArray = winData[0]
+      b.ftCoeffArray = ftCoeffData[0]
+      b.nConversion = nConversionData[0]
       
       return b
     })

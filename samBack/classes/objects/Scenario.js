@@ -47,19 +47,19 @@ class Scenario {
   // Retrieve data from Scenario Wiz
   getScenarioData() {
 
-    return DB.executeQuery('select top 1 * from CapeCodMA.Scenario_Wiz where ScenarioID = ' + this.id, DB.wmvp3Connect)
+    return DB.executeQuery('select * from "Scenario_Wiz" where "ScenarioID" = ' + this.id + ' limit 1')
   }
 
   // Retrieve data from Treatment Wiz
   getTreatmentsData() {
 
-    return DB.executeQuery('select * from CapeCodMA.Treatment_Wiz where ScenarioID = ' + this.id, DB.wmvp3Connect)
+    return DB.executeQuery('select * from "Treatment_Wiz" where "ScenarioID" = ' + this.id)
   }
 
   // Retrieve data from Treatment Wiz
   getFTCoeffData() {
 
-    return DB.executeQuery('select * from CapeCodMA.FTCoeff where EMBAY_ID = ' + this.areaID, DB.wmvp3Connect)
+    return DB.executeQuery('select * from "FTCoeff" where "EMBAY_ID" = ' + this.areaID)
   }
 
   // Retrieve data from Tech Matrix by treatment ids
@@ -72,7 +72,7 @@ class Scenario {
   // Retrieve all data from Tech Matrix
   getAllTechMatrixData() {
     
-    return DB.executeQuery('select * from Technology_Matrix where Show_In_wMVP != 0', DB.tmConnect)
+    return DB.executeQuery('select * from "Tech_Matrix"')
   }
 
   // Retrieve data from subwatersheds by treatment ids and embayment id
@@ -81,10 +81,9 @@ class Scenario {
     return DB.executeQuery('SELECT tw.TreatmentID, sw.* FROM CapeCodMA.Treatment_Wiz tw INNER JOIN CapeCodMA.Subwatersheds sw ON geometry::STGeomFromText(tw.POLY_STRING, 3857).STIntersects(sw.Shape) = 1 AND tw.TreatmentID in (' + queryTypeString + ') and EMBAY_ID = ' + this.areaID, DB.wmvp3Connect)
   }
 
-  // Retrieve data from tblWin by treatment ids and embayment name
+  // Retrieve data from tblWin by scenario id and embayment name
   getWINData() {
-    var queryTypeString = this.treatmentIDCustomArray.map(i => {return "'" + i + "'"}).join(',')
-    return DB.executeQuery('SELECT tw.TreatmentID, sw.EconDevType, sw.DensityCat, sw.BioMap2, sw.CWMP, sw.NaturalAttenuation, sw.NewSLIRM, sw.TotalAssessedValue, sw.Waterfront FROM CapeCodMA.Treatment_Wiz tw INNER JOIN TBL_Dev.dbo.WIN sw ON geometry::STGeomFromText(tw.POLY_STRING, 0).STIntersects(sw.Shape) = 1 AND tw.TreatmentID in (' + queryTypeString + ') and Embayment = ' + "'" + this.areaName + "'", DB.wmvp3Connect)
+    return DB.executeQuery('SELECT tw."TreatmentID", sw."EconDevType", sw."DensityCat", sw."BioMap2", sw."CWMP", sw."NaturalAttenuation", sw."NewSLIRM", sw."TotalAssessedValue", sw."Waterfront" FROM "Treatment_Wiz" as tw INNER JOIN "WIN" as sw ON ST_Intersects(sw."SHAPE", tw."POLY_STRING") AND tw."ScenarioID" = ' + this.id + ' and "Embayment" = ' + "'" + this.areaName + "'")
   }
 
   getTechnologiesData() {
@@ -99,7 +98,7 @@ class Scenario {
   }
 
   getNConversionData() {
-    return DB.executeQuery('select * from TBL_Dev.dbo.TBL_NConversion_SQL where EMBAY_ID = ' + this.areaID, DB.wmvp3Connect)
+    return DB.executeQuery('select * from "TBL_NConversion_SQL" where "EMBAY_ID" = ' + "'" + this.areaID + "'")
   }
 
   // Return new Treatments, fill in projcostKG for each Treatment
