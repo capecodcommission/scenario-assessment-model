@@ -35,13 +35,13 @@ class Scenario {
   // Retrieve data from Scenario Wiz
   getScenarioTownNames() {
 
-    return DB.executeQuery('SELECT DISTINCT	t.TOWN FROM CapeCodMA.parcelMaster pm LEFT JOIN CapeCodMA.MATowns t	ON pm.town_id = t.TOWN_ID where pm.scenario_id = ' + this.id, DB.wmvp3Connect)
+    return DB.executeQuery('SELECT "TOWN" FROM "Scenario_Towns" where "scenario_id" = ' + this.id, DB.wmvp3Connect)
   }
 
   // Retrieve data from Scenario Wiz
   getScenarioSubembaymentNames() {
     var queryTypeString = this.treatmentIDCustomArray.map(i => {return "'" + i + "'"}).join(',')
-    return DB.executeQuery('SELECT DISTINCT	se.SUBEM_DISP FROM CapeCodMA.Treatment_Wiz tw INNER JOIN CapeCodMA.SubEmbayments se	ON geometry::STGeomFromText(tw.POLY_STRING, 3857).STIntersects(se.Shape) = 1 AND tw.TreatmentID IN (' + queryTypeString + ')	AND EMBAY_ID = ' + this.areaID, DB.wmvp3Connect)
+    return DB.executeQuery('SELECT distinct se."SUBEM_DISP" FROM "Treatment_Wiz" as tw INNER JOIN "Subembayments" as se	ON ST_Intersects(se."Shape", tw."POLY_STRING") AND tw."ScenarioID" = ' + this.id +	' AND se."EMBAY_ID" = ' + this.areaID, DB.wmvp3Connect)
   }
 
   // Retrieve data from Scenario Wiz

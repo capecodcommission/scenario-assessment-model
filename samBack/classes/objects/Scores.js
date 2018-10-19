@@ -301,7 +301,6 @@ class Scores {
 
       newCompat = newCompat || 0
 
-      // TODO: Opimization looping through rows
       var tblFiltered = tblWin.filter((j) => {return j.TreatmentID === i.TreatmentID})
 
       tblFiltered.map((j) => {
@@ -395,8 +394,8 @@ class Scores {
     // Init running totals and property hooks
     var pvla = 0
     var embayNReduc = this.nReducInEmbay
-    var slope = parseFloat(this.nConversion.Slope)
-    var intercept = parseFloat(this.nConversion.Intercept)
+    var slope = parseFloat(this.nConversion[0].Slope)
+    var intercept = parseFloat(this.nConversion[0].Intercept)
     var embayNCalc = this.embayNCalc
     var waterfrontPropVal = 0
     var totalPropVal = 0
@@ -404,11 +403,11 @@ class Scores {
     // Total property values
     this.tblWinArray.map((i) => {
 
-      totalPropVal += i.TotalAssessedValue
+      totalPropVal += parseFloat(i.TotalAssessedValue)
 
       if (i.Waterfront === 1) {
         
-        waterfrontPropVal += i.TotalAssessedValue
+        waterfrontPropVal += parseFloat(i.TotalAssessedValue)
       }
     })
 

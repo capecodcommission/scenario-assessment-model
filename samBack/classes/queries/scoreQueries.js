@@ -29,13 +29,13 @@ getScores = function({id}) {
 
     a.areaName = scenarioData.AreaName
     a.areaID = scenarioData.AreaID
-    a.nReducInEmbay = parseFloat(scenarioData.Nload_Reduction_InEmbay)
     a.treatmentIDCustomArray = []
 
     treatmentsData[0].map((i) => {
       a.treatmentIDCustomArray.push(i.TreatmentID)
     })
 
+    b.nReducInEmbay = parseFloat(scenarioData.Nload_Reduction_InEmbay)
     b.embayNCalc = parseFloat(scenarioData.Nload_Calculated_InEmbay)
     b.nReducTotal = parseFloat(scenarioData.Nload_Reduction_Attenuation) + parseFloat(scenarioData.Nload_Reduction_Fert) + parseFloat(scenarioData.Nload_Reduction_GW) + parseFloat(scenarioData.Nload_Reduction_InEmbay) + parseFloat(scenarioData.Nload_Reduction_Septic) + parseFloat(scenarioData.Nload_Reduction_SW)
     b.treatments = treatmentsData[0]

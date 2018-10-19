@@ -25,13 +25,13 @@ getSummary = function({id}) {
     treatments
   ]) {
 
-    a.areaID = scenarioData.recordset[0].AreaID
+    a.areaID = scenarioData[0][0].AreaID
 
-    townNames.recordset.map((i) => {
+    townNames[0].map((i) => {
       b.towns.push(new Town(i.TOWN))
     })  
 
-    treatments.recordset.map((i) => {
+    treatments[0].map((i) => {
       var treatment = new Treatment(i.TreatmentType_ID)
       treatment.treatmentName = i.TreatmentType_Name
       a.treatmentIDCustomArray.push(i.TreatmentID)
@@ -45,7 +45,7 @@ getSummary = function({id}) {
       subEmbaymentNames
     ]) {
 
-      subEmbaymentNames.recordset.map((i) => {
+      subEmbaymentNames[0].map((i) => {
         b.subEmbayments.push(new SubEmbayment(i.SUBEM_DISP))
       })
 
