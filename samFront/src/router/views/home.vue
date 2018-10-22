@@ -118,6 +118,7 @@ export default {
           return d.x
         })
       },
+      subCatSliderVal: [33, 66],
       communitySliderVal: [33, 66],
       costSliderVal: [33, 66],
       confidenceSliderVal: [33, 66],
@@ -234,39 +235,68 @@ export default {
         })
       }
     },
+    modifySubCatSliderVal(val) {
+
+      var commWeight = val[0] / 100
+      var newGrowthCompSliderVal = commWeight *  (this.communitySliderVal[0] / 100) * this.scoresGraphql.getScores.growthComp
+      var newJobsSliderVal = commWeight *  ( (this.communitySliderVal[1] - this.communitySliderVal[0]) / 100) * this.scoresGraphql.getScores.jobs
+      var newPvlaSliderVal = commWeight *  ( (100 - this.communitySliderVal[1]) / 100) * this.scoresGraphql.getScores.pvla
+
+      var costWeight = (val[1] - val[0]) / 100
+      var newCapSliderVal = costWeight *  (this.costSliderVal[0] / 100) * this.scoresGraphql.getScores.capitalCost
+      var newOmSliderVal = costWeight *  ( (this.costSliderVal[1] - this.costSliderVal[0]) / 100) * this.scoresGraphql.getScores.omCost
+      var newLcSliderVal = costWeight *  ( (100 - this.costSliderVal[1]) / 100) * this.scoresGraphql.getScores.lcCost
+
+      var confWeight = (100 - val[1]) / 100
+      var newYearsSliderVal = confWeight *  (this.confidenceSliderVal[0] / 100) * this.scoresGraphql.getScores.years
+      var newVarpSliderVal = confWeight *  ( (this.confidenceSliderVal[1] - this.confidenceSliderVal[0]) / 100) * this.scoresGraphql.getScores.varPerf
+      var newFloodSliderVal = confWeight *  ( (100 - this.confidenceSliderVal[1]) / 100) * this.scoresGraphql.getScores.floodRatio
+
+      this.chartData.children[0].children[0].size = newGrowthCompSliderVal * 10
+      this.chartData.children[0].children[1].size = newJobsSliderVal * 10
+      this.chartData.children[0].children[2].size = newPvlaSliderVal * 10
+
+      this.chartData.children[1].children[0].size = newCapSliderVal * 10
+      this.chartData.children[1].children[1].size = newOmSliderVal * 10
+      this.chartData.children[1].children[2].size = newLcSliderVal * 10
+
+      this.chartData.children[2].children[0].size = newYearsSliderVal * 10
+      this.chartData.children[2].children[1].size = newVarpSliderVal * 10
+      this.chartData.children[2].children[2].size = newFloodSliderVal * 10
+    },
     modifyCommunity(val) {
 
-      var commTotal =  this.scoresGraphql.getScores.growthComp + this.scoresGraphql.getScores.jobs + this.scoresGraphql.getScores.pvla
-      var growthCompSliderVal = commTotal * ( val[0] / 100 )
-      var jobsSliderVal = commTotal * ( (val[1] - val[0]) / 100 )
-      var pvlaSliderVal = commTotal * ( (100 - val[1]) / 100 )
+      var commWeight = this.subCatSliderVal[0] / 100
+      var growthCompSliderVal = commWeight * ( val[0] / 100 ) * this.scoresGraphql.getScores.growthComp
+      var jobsSliderVal = commWeight * ( (val[1] - val[0]) / 100 ) * this.scoresGraphql.getScores.jobs
+      var pvlaSliderVal = commWeight * ( (100 - val[1]) / 100 ) * this.scoresGraphql.getScores.pvla
 
 
-      this.chartData.children[0].children[0].size = growthCompSliderVal
-      this.chartData.children[0].children[1].size =  jobsSliderVal
-      this.chartData.children[0].children[2].size = pvlaSliderVal
+      this.chartData.children[0].children[0].size = growthCompSliderVal * 10
+      this.chartData.children[0].children[1].size =  jobsSliderVal * 10
+      this.chartData.children[0].children[2].size = pvlaSliderVal * 10
     },
     modifyCost(val) {
 
-      var costTotal =  this.scoresGraphql.getScores.capitalCost + this.scoresGraphql.getScores.omCost + this.scoresGraphql.getScores.lcCost
-      var capSliderVal = costTotal * ( val[0] / 100 )
-      var omSliderVal = costTotal * ( (val[1] - val[0]) / 100 )
-      var lcSliderVal = costTotal * ( (100 - val[1]) / 100 )
+      var costWeight = (this.subCatSliderVal[1] - this.subCatSliderVal[0]) / 100
+      var capSliderVal = costWeight * ( val[0] / 100 ) * this.scoresGraphql.getScores.capitalCost
+      var omSliderVal = costWeight * ( (val[1] - val[0]) / 100 ) * this.scoresGraphql.getScores.omCost
+      var lcSliderVal = costWeight * ( (100 - val[1]) / 100 ) * this.scoresGraphql.getScores.lcCost
 
-      this.chartData.children[1].children[0].size = capSliderVal
-      this.chartData.children[1].children[1].size = omSliderVal
-      this.chartData.children[1].children[2].size = lcSliderVal
+      this.chartData.children[1].children[0].size = capSliderVal * 10
+      this.chartData.children[1].children[1].size = omSliderVal * 10
+      this.chartData.children[1].children[2].size = lcSliderVal * 10
     },
     modifyConfidence(val) {
 
-      var confTotal =  this.scoresGraphql.getScores.years + this.scoresGraphql.getScores.varPerf + this.scoresGraphql.getScores.floodRatio
-      var yearsSliderVal = confTotal * ( val[0] / 100 )
-      var varpSliderVal = confTotal * ( (val[1] - val[0]) / 100 )
-      var floodSliderVal = confTotal * ( (100 - val[1]) / 100 )
+      var confWeight = (100 - this.subCatSliderVal[1]) / 100
+      var yearsSliderVal = confWeight * ( val[0] / 100 ) * this.scoresGraphql.getScores.years
+      var varpSliderVal = confWeight * ( (val[1] - val[0]) / 100 ) * this.scoresGraphql.getScores.varPerf
+      var floodSliderVal = confWeight * ( (100 - val[1]) / 100 ) * this.scoresGraphql.getScores.floodRatio
 
-      this.chartData.children[2].children[0].size = yearsSliderVal
-      this.chartData.children[2].children[1].size = varpSliderVal
-      this.chartData.children[2].children[2].size = floodSliderVal
+      this.chartData.children[2].children[0].size = yearsSliderVal * 10
+      this.chartData.children[2].children[1].size = varpSliderVal * 10
+      this.chartData.children[2].children[2].size = floodSliderVal * 10
     },
   },
 }
@@ -457,6 +487,14 @@ export default {
         </VCardTitle>
         <ChartSunburst
           :data="chartData"
+        />
+        <VRangeSlider
+          v-model="subCatSliderVal"
+          color="black"
+          :max="100"
+          :min="1"
+          :step="1"
+          @end="modifySubCatSliderVal"
         />
         <VRangeSlider
           v-model="communitySliderVal"
