@@ -1,7 +1,29 @@
-var { buildSchema } = require('graphql');
+var { buildSchema, GraphQLScalarType } = require('graphql');
+
+
+const resolvers = {
+  Coordinates: new GraphQLScalarType({
+    // Thanks:
+    // https://github.com/ghengeveld/graphql-geojson/blob/master/index.js#L46
+    // https://github.com/apollographql/graphql-tools/blob/master/docs/source/scalars.md
+    name: 'Coordinates',
+    description: 'A set of coordinates. x, y',
+    parseValue(value) {
+      return value;
+    },
+    serialize(value) {
+      return value;
+    },
+    parseLiteral(ast) {
+      return ast.value;
+    },
+  })
+}
 
 // GraphQL type definitions
 const typeDefs = `
+
+scalar Coordinates
 
 type Scenario {
   getID: ID!
@@ -9,6 +31,11 @@ type Scenario {
   getNloadSums: Float
   scenarioTreatments: [Treatment]
   subWaterIDArray: [String]
+}
+
+type Polygon {
+  type: String
+  rings: Coordinates
 }
 
 type Treatment {
@@ -21,7 +48,7 @@ type Treatment {
   treatmentCompat: Int
   capitalFTE: Float
   omFTE: Float
-  treatmentPolyString: String
+  treatmentPolyString: Polygon
   treatmentCustomPoly: Int
   subWaterIDArray: [String]
   tblWinArray: [Parcel]
@@ -84,7 +111,7 @@ schema {
 `
 
 // Construct a schema, using GraphQL schema language
-var schema = buildSchema(typeDefs);
+var schema = buildSchema(typeDefs,resolvers);
 
 module.exports = {
   schema: schema

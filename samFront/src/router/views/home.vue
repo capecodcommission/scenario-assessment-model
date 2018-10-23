@@ -52,6 +52,10 @@ export default {
           }
           treatments {
             treatmentName
+            treatmentPolyString {
+              type
+              rings
+            }
           }
         }
       }`,
@@ -202,19 +206,39 @@ export default {
     startMap() {
       esriLoader.loadCss('https://js.arcgis.com/4.8/esri/css/main.css')
       esriLoader
-        .loadModules(['esri/views/MapView', 'esri/Map', 'dojo/domReady!'])
-        .then(([MapView, Map]) => {
+        .loadModules(['esri/views/MapView', 'esri/Map', 'esri/Graphic', 'dojo/domReady!'])
+        .then(([MapView, Map, Graphic]) => {
           // then we load a web map from an id
           var webmap = new Map({
             basemap: 'streets',
           })
           // and we show that map in a container w/ id #viewDiv
-          MapView({
+          var view = MapView({
             map: webmap,
             container: 'viewDiv',
             center: [-70.325284, 41.675269],
             zoom: 10,
           })
+
+          var polygon = {
+            type: 'polygon',
+            rings: this.scenarioTechnologies[3].treatmentPolyString.rings
+          }
+
+          console.log(polygon)
+
+          var lineSymbol = {
+            type: "simple-fill",
+            color: [226, 119, 40],
+            width: 4
+          }
+
+          var polyGraphic = {
+            geometry: polygon,
+            symbol: lineSymbol
+          }
+
+          view.graphics.add(polyGraphic)
         })
         .catch(err => {
           // handle any errors

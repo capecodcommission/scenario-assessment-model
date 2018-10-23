@@ -3,6 +3,7 @@ var {Summary} = require('../objects/Summary')
 var {Town} = require('../objects/Town')
 var {SubEmbayment} = require('../objects/SubEmbayment')
 var {Treatment} = require('../objects/Treatment')
+var {Polygon} = require('../objects/Polygon')
 
 getSummary = function({id}) {
 
@@ -34,6 +35,7 @@ getSummary = function({id}) {
     treatments[0].map((i) => {
       var treatment = new Treatment(i.TreatmentType_ID)
       treatment.treatmentName = i.TreatmentType_Name
+      treatment.treatmentPolyString = new Polygon(i.POLY_STRING.type,i.POLY_STRING.coordinates[0])
       a.treatmentIDCustomArray.push(i.TreatmentID)
       b.treatments.push(treatment)
     })
