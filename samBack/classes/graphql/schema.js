@@ -3,18 +3,19 @@ var { buildSchema, GraphQLScalarType } = require('graphql');
 
 const resolvers = {
   Coordinates: new GraphQLScalarType({
-    // Thanks:
-    // https://github.com/ghengeveld/graphql-geojson/blob/master/index.js#L46
-    // https://github.com/apollographql/graphql-tools/blob/master/docs/source/scalars.md
+    
     name: 'Coordinates',
     description: 'A set of coordinates. x, y',
     parseValue(value) {
+
       return value;
     },
     serialize(value) {
+
       return value;
     },
     parseLiteral(ast) {
+
       return ast.value;
     },
   })
@@ -89,6 +90,9 @@ type Summary {
   towns: [Town]
   subEmbayments: [SubEmbayment]
   treatments: [Treatment]
+  embaymentName: String
+  getID: String
+  progressTMDL: Float
 }
 
 type SubEmbayment {
@@ -111,8 +115,9 @@ schema {
 `
 
 // Construct a schema, using GraphQL schema language
-var schema = buildSchema(typeDefs,resolvers);
+var schema = buildSchema(typeDefs, resolvers);
 
 module.exports = {
+
   schema: schema
 }

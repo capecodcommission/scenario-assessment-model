@@ -101,6 +101,10 @@ class Scenario {
     return DB.executeQuery('select * from "TBL_NConversion_SQL" where "EMBAY_ID" = ' + "'" + this.areaID + "'")
   }
 
+  getTMDL() {
+    return DB.executeQuery('select * from get_tmdl(' + this.id + ',' + this.areaID + ')')
+  }
+
   // Return new Treatments, fill in projcostKG for each Treatment
   scenarioTreatments() {
 

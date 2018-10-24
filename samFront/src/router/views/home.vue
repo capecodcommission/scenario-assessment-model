@@ -17,7 +17,6 @@ export default {
     scoresGraphql: {
       query: gql`query myQuery($id: String) {
         getScores(id: $id) {
-          getID
           capitalCost
           omCost
           lcCost
@@ -44,6 +43,9 @@ export default {
     summaryData: {
       query: gql `query myQuery($id: String) {
         getSummary(id: $id) {
+          getID
+          progressTMDL
+          embaymentName
           towns {
             name
           }
@@ -86,18 +88,20 @@ export default {
       this.chartData.children[2].children[0].size = x.getScores.years
       this.chartData.children[2].children[1].size = x.getScores.varPerf
       this.chartData.children[2].children[2].size = x.getScores.floodRatio
-
-      this.scenarioID = x.getScores.getID
-
     },
     summaryData: function(x) {
       this.scenarioMunicipalities = x.getSummary.towns
       this.scenarioSubEmbayments = x.getSummary.subEmbayments
       this.scenarioTechnologies = x.getSummary.treatments
+      this.scenarioID = x.getSummary.getID
+      this.embaymentName = x.getSummary.embaymentName
+      this.percentageNRemovedToMeetTMDL = x.getSummary.progressTMDL
+      this.startMap(x.getSummary.treatments)
     }
   },
   data() {
     return {
+      embaymentName: '',
       summaryData: '',
       scoresGraphql: '',
       rules: {
@@ -111,7 +115,7 @@ export default {
       scenarioID: '',
       scenarioMunicipalities: [],
       scenarioSubEmbayments: [],
-      percentageNRemovedToMeetTMDL: '97%',
+      percentageNRemovedToMeetTMDL: '',
       scenarioTechnologies: [],
       samScenarioCreated: false,
       dialog: true,
@@ -198,50 +202,106 @@ export default {
     },
   },
   mounted: function() {
-    this.startMap()
 
     if (store.state.users.scenario) {this.queryInput = store.state.users.scenario}
   },
   methods: {
-    startMap() {
+    startMap(treatments) {
       esriLoader.loadCss('https://js.arcgis.com/4.8/esri/css/main.css')
       esriLoader
-        .loadModules(['esri/views/MapView', 'esri/Map', 'esri/Graphic', 'dojo/domReady!'])
-        .then(([MapView, Map, Graphic]) => {
-          // then we load a web map from an id
+        .loadModules([
+          'esri/views/MapView', 
+          'esri/Map', 
+          "esri/geometry/Polygon", 
+          "esri/symbols/SimpleFillSymbol", 
+          "esri/Graphic", 
+          "esri/geometry/Point", 
+          "esri/symbols/SimpleMarkerSymbol",
+          'dojo/domReady!'
+        ])
+        .then(([
+          MapView, 
+          Map, 
+          Polygon, 
+          SimpleFillSymbol, 
+          Graphic, 
+          Point, 
+          SimpleMarkerSymbol
+        ]) => {
+
+
           var webmap = new Map({
+
             basemap: 'streets',
           })
-          // and we show that map in a container w/ id #viewDiv
+
           var view = MapView({
+
             map: webmap,
             container: 'viewDiv',
             center: [-70.325284, 41.675269],
             zoom: 10,
           })
 
-          var polygon = {
-            type: 'polygon',
-            rings: this.scenarioTechnologies[3].treatmentPolyString.rings
-          }
+          treatments.map((i) => {
 
-          console.log(polygon)
+            // if (i.treatmentPolyString.type === 'Point') {
 
-          var lineSymbol = {
-            type: "simple-fill",
-            color: [226, 119, 40],
-            width: 4
-          }
+            //   var point = new Point({
+            //     longitude: i.treatmentPolyString.rings[0],
+            //     latitude: i.treatmentPolyString.rings[1],
+            //     spatialReference: 3857
+            //   })
 
-          var polyGraphic = {
-            geometry: polygon,
-            symbol: lineSymbol
-          }
+            //   var pointMarker = new SimpleMarkerSymbol({
+            //     color: [71, 141, 255],
+            //   })
 
-          view.graphics.add(polyGraphic)
+            //   var pointGraphic = new Graphic({
+            //     geometry: point,
+            //     symbol: pointMarker
+            //   })
+
+            //   view.graphics.add(pointGraphic)
+            // }
+
+            if (i.treatmentPolyString.type === 'Polygon') {
+
+              var polygon = new Polygon({
+
+                rings: i.treatmentPolyString.rings,
+                spatialReference: { wkid: 3857 }
+              })
+
+              var fillSymbol = new SimpleFillSymbol({
+
+                color: [0,0,0,0],
+                outline: {
+                  color: [71, 141, 255],
+                  width: 4
+                }
+              })
+
+              var polyGraphic = new Graphic({
+
+                geometry: polygon,
+                symbol: fillSymbol
+              })
+
+              view.graphics.add(polyGraphic)
+            }
+          })
+
+          view.when((i) => {
+
+            view.goTo({
+              
+              target: view.graphics
+            })
+          })
         })
         .catch(err => {
-          // handle any errors
+
           console.error(err)
         })
     },
@@ -376,6 +436,17 @@ export default {
         >
           <h5><strong>{{ scenarioID }}</strong></h5>
         </VCardText>
+        <VCardTitle
+          class="pa-0 justify-center"
+          word-wrap="break-word"
+        >
+          <h3>Embayment</h3>
+        </VCardTitle>
+        <VCardText
+          class="pa-0"
+        >
+          <h5><strong>{{ embaymentName }}</strong></h5>
+        </VCardText>
       </VCard>
       <VCard
         color="grey"
@@ -436,7 +507,7 @@ export default {
           primary-title
           class="pa-0"
         >
-          <h5><strong>{{ percentageNRemovedToMeetTMDL }}</strong></h5>
+          <h5><strong>{{ percentageNRemovedToMeetTMDL.toFixed() }}%</strong></h5>
         </vcardtext>
       </VCard>
       <VCard

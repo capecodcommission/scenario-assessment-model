@@ -27,27 +27,35 @@ getSummary = function({id}) {
   ]) {
 
     a.areaID = scenarioData[0][0].AreaID
+    b.embaymentName = scenarioData[0][0].AreaName
 
     townNames[0].map((i) => {
+
       b.towns.push(new Town(i.TOWN))
     })  
 
     treatments[0].map((i) => {
+
       var treatment = new Treatment(i.TreatmentType_ID)
       treatment.treatmentName = i.TreatmentType_Name
-      treatment.treatmentPolyString = new Polygon(i.POLY_STRING.type,i.POLY_STRING.coordinates[0])
+      treatment.treatmentPolyString = new Polygon(i.POLY_STRING.type,i.POLY_STRING.coordinates)
       a.treatmentIDCustomArray.push(i.TreatmentID)
       b.treatments.push(treatment)
     })
 
     return Promise.all([
-      a.getScenarioSubembaymentNames()
+      a.getScenarioSubembaymentNames(),
+      a.getTMDL()
     ])
     .then(function ([
-      subEmbaymentNames
+      subEmbaymentNames,
+      tmdl
     ]) {
 
+      b.progressTMDL = tmdl[0][0].progress
+
       subEmbaymentNames[0].map((i) => {
+        
         b.subEmbayments.push(new SubEmbayment(i.SUBEM_DISP))
       })
 
