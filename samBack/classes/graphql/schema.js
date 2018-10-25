@@ -109,8 +109,13 @@ type Query {
   getSummary(id: String): Summary
 }
 
+type Mutation {
+  updateSamVote(scenarioid: Int, meetingid: Int, cap_cost: Float, om_cost: Float, lc_cost: Float, years: Float, var_perf: Float, jobs: Float, growth_comp: Float, flood_ratio: Float, pvla: Float): String
+}
+
 schema {
   query: Query
+  mutation: Mutation
 }
 `
 

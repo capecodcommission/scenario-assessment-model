@@ -54,6 +54,7 @@ export default {
           }
           treatments {
             treatmentName
+            treatmentClass
             treatmentPolyString {
               type
               rings
@@ -95,7 +96,7 @@ export default {
       this.scenarioTechnologies = x.getSummary.treatments
       this.scenarioID = x.getSummary.getID
       this.embaymentName = x.getSummary.embaymentName
-      this.percentageNRemovedToMeetTMDL = x.getSummary.progressTMDL
+      this.percentageNRemovedToMeetTMDL = x.getSummary.progressTMDL.toFixed()
       this.startMap(x.getSummary.treatments)
     }
   },
@@ -272,6 +273,16 @@ export default {
                 rings: i.treatmentPolyString.rings,
                 spatialReference: { wkid: 3857 }
               })
+
+              // switch (i.treatmentClass){
+              //   case '':
+              //     ///
+              //     break
+
+              //   case '':
+              //     ///
+              //     break
+              // }
 
               var fillSymbol = new SimpleFillSymbol({
 
@@ -507,7 +518,7 @@ export default {
           primary-title
           class="pa-0"
         >
-          <h5><strong>{{ percentageNRemovedToMeetTMDL.toFixed() }}%</strong></h5>
+          <h5><strong>{{ percentageNRemovedToMeetTMDL }}%</strong></h5>
         </vcardtext>
       </VCard>
       <VCard

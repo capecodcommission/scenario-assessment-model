@@ -32,16 +32,16 @@ class Scenario {
     this.fullTechnologies = fullTechnologies
   }
   
-  // Retrieve data from Scenario Wiz
+  // Retrieve town names from Scenario_Towns
   getScenarioTownNames() {
 
-    return DB.executeQuery('SELECT "TOWN" FROM "Scenario_Towns" where "scenario_id" = ' + this.id, DB.wmvp3Connect)
+    return DB.executeQuery('SELECT "TOWN" FROM "Scenario_Towns" where "scenario_id" = ' + this.id)
   }
 
-  // Retrieve data from Scenario Wiz
+  // Retrieve subembayment names intersecting with treatment polygons
   getScenarioSubembaymentNames() {
-    var queryTypeString = this.treatmentIDCustomArray.map(i => {return "'" + i + "'"}).join(',')
-    return DB.executeQuery('SELECT distinct se."SUBEM_DISP" FROM "Treatment_Wiz" as tw INNER JOIN "Subembayments" as se	ON ST_Intersects(se."Shape", tw."POLY_STRING") AND tw."ScenarioID" = ' + this.id +	' AND se."EMBAY_ID" = ' + this.areaID, DB.wmvp3Connect)
+
+    return DB.executeQuery('SELECT distinct se."SUBEM_DISP" FROM "Treatment_Wiz" as tw INNER JOIN "Subembayments" as se	ON ST_Intersects(se."Shape", tw."POLY_STRING") AND tw."ScenarioID" = ' + this.id +	' AND se."EMBAY_ID" = ' + this.areaID)
   }
 
   // Retrieve data from Scenario Wiz

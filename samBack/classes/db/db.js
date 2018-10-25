@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize')
+const config = require('../../config')
 
 class DB {
   constructor (sequelize) {
@@ -18,7 +19,7 @@ class DB {
   }
 }
 
-const sequelize = new Sequelize('postgres://postgres:postgres@localhost:5432/SAM_GEODB');
+const sequelize = new Sequelize(config.development);
 var initDB = new DB(sequelize)
 initDB.connect()
 

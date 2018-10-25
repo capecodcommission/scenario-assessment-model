@@ -39,6 +39,7 @@ getSummary = function({id}) {
       var treatment = new Treatment(i.TreatmentType_ID)
       treatment.treatmentName = i.TreatmentType_Name
       treatment.treatmentPolyString = new Polygon(i.POLY_STRING.type,i.POLY_STRING.coordinates)
+      treatment.treatmentClass = i.Treatment_Class
       a.treatmentIDCustomArray.push(i.TreatmentID)
       b.treatments.push(treatment)
     })
