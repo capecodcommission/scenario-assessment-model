@@ -35,5 +35,5 @@ node server.js
 
 This project includes a `docs` folder with more details on:
 
-1.  [Setup and development](docs/development.md)
+1.  [Instaniation](docs/development.md)
 1.  [Architecture](docs/architecture.md)

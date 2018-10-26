@@ -1,10 +1,9 @@
-# Setup and development
+# Instantiation
 
 - [First-time setup](#first-time-setup)
 - [Installation](#installation)
-- [Spinning Up](#spinning-up)
-  - [Development](#development)
-  - [Production](#production)
+- [Development](#local)
+- [Production](#production-apache)
 
 ## First-time setup
 
@@ -25,25 +24,7 @@ Then update the following files to suit your application:
 yarn 
 ```
 
-## Local Instantiation
-
-```bash
-# Launch server
-node server.js
-```
-
-## Production Instantiation on Apache
-
-```bash
-# Start shell session
-screen
-
-# Launch server using forever module
-# https://github.com/foreverjs/forever
-forever start server.js
-```
-
-### Development
+## Local
 
 Modify DEV environment variables with relevant credentials
 
@@ -55,7 +36,18 @@ DEVUSER="mario"
 DEVPASSWORD="password"
 ```
 
-### Production
+Ensure Sequelize is using development configuration env variables in `/db/db.js`
+
+```bash
+const sequelize = new Sequelize(config.development)
+```
+
+```bash
+# Launch server
+node server.js
+```
+
+## Production Apache
 
 Modify PROD environment variables with relevant credentials
 
@@ -65,4 +57,21 @@ PRODPORT="####"
 PRODDB="DBName"
 PRODUSER="produser"
 PRODPASSWORD="prodpassword"
+```
+
+Point Sequelize at production configuration env variables in `/db/db.js`
+
+```bash
+const sequelize = new Sequelize(config.production)
+```
+
+SSH into Apache server, cd to relevant directory
+
+```bash
+# Start shell session
+screen
+
+# Launch server using forever module
+# https://github.com/foreverjs/forever
+forever start server.js
 ```

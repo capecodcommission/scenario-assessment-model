@@ -4,7 +4,7 @@ var cors = require('cors')
 var {getScenario} = require('./classes/queries/scenarioQueries')
 var {getScores} = require('./classes/queries/scoreQueries')
 var {getSummary} = require('./classes/queries/summaryQueries')
-var {updateSamVote} = require('./classes/mutations/voteMutations')
+var {insertSamVote} = require('./classes/mutations/voteMutations')
 var {schema} = require('./classes/graphql/schema')
 
 var root = {
@@ -12,7 +12,7 @@ var root = {
   getScenario,
   getScores,
   getSummary,
-  updateSamVote
+  insertSamVote
 };
 
 var app = express();

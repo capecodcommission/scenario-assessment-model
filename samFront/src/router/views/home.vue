@@ -102,6 +102,16 @@ export default {
   },
   data() {
     return {
+      meetingID: 1,
+      capCost: '',
+      omCost: '',
+      lcCost: '',
+      growthComp: '',
+      jobs: '',
+      varperf: '',
+      floodRatio: '',
+      pvla: '',
+      years: '',
       embaymentName: '',
       summaryData: '',
       scoresGraphql: '',
@@ -207,6 +217,58 @@ export default {
     if (store.state.users.scenario) {this.queryInput = store.state.users.scenario}
   },
   methods: {
+    async insertSamVote() {
+      const results = await this.$apollo.mutate({
+        mutation: gql`
+        mutation myMutation(
+          $scenarioID: Int, 
+          $meetingID: Int, 
+          $capCost: Float, 
+          $omCost: Float, 
+          $lcCost: Float, 
+          $growthComp: Float, 
+          $jobs: Float, 
+          $varPerf: Float, 
+          $floodRatio: Float, 
+          $pvla: Float, 
+          $years: Float
+          ) {
+            insertSamVote(
+              scenarioid: $scenarioID, 
+              meetingid: $meetingID, 
+              cap_cost: $capCost, 
+              om_cost: $omCost, 
+              lc_cost: $lcCost, 
+              growth_comp: $growthComp, 
+              jobs: $jobs, 
+              var_perf: $varPerf, 
+              flood_ratio: $floodRatio, 
+              pvla: $pvla, 
+              years: $years
+            )
+        }`,
+        variables: {
+          scenarioID: parseInt(this.queryInput),
+          meetingID: this.meetingID,
+          capCost: this.capCost,
+          omCost: this.omCost,
+          lcCost: this.lcCost,
+          growthComp: this.growthComp,
+          jobs: this.jobs,
+          varPerf: this.varPerf,
+          floodRatio: this.floodRatio,
+          pvla: this.pvla,
+          years: this.years
+        },
+        update: function(data) {
+          return data
+        }
+      })
+      .then((response) => {
+        this.samScenarioCreated = !this.samScenarioCreated
+        console.log(response)
+      })
+    },
     startMap(treatments) {
       esriLoader.loadCss('https://js.arcgis.com/4.8/esri/css/main.css')
       esriLoader
@@ -230,22 +292,20 @@ export default {
           SimpleMarkerSymbol
         ]) => {
 
-
           var webmap = new Map({
-
             basemap: 'streets',
           })
 
           var view = MapView({
-
             map: webmap,
             container: 'viewDiv',
             center: [-70.325284, 41.675269],
             zoom: 10,
           })
 
-          treatments.map((i) => {
+          var fillSymbol = ''
 
+          treatments.map((i) => {
             // if (i.treatmentPolyString.type === 'Point') {
 
             //   var point = new Point({
@@ -263,38 +323,66 @@ export default {
             //     symbol: pointMarker
             //   })
 
+            //   console.log(pointGraphic)
+
             //   view.graphics.add(pointGraphic)
             // }
 
-            if (i.treatmentPolyString.type === 'Polygon') {
-
+            if (i.treatmentPolyString.type === 'Polygon' && i.treatmentClass !== null) {
               var polygon = new Polygon({
-
                 rings: i.treatmentPolyString.rings,
                 spatialReference: { wkid: 3857 }
               })
 
-              // switch (i.treatmentClass){
-              //   case '':
-              //     ///
-              //     break
-
-              //   case '':
-              //     ///
-              //     break
-              // }
-
-              var fillSymbol = new SimpleFillSymbol({
-
-                color: [0,0,0,0],
-                outline: {
-                  color: [71, 141, 255],
-                  width: 4
-                }
-              })
+              switch (i.treatmentClass){
+                case "Septic/Sewer":
+                  fillSymbol = new SimpleFillSymbol({
+                    color: [0,0,0,0],
+                    outline: {
+                      color: [71, 141, 255],
+                      width: 4
+                    }
+                  })
+                  break
+                case "Groundwater":
+                  fillSymbol = new SimpleFillSymbol({
+                    color: [0,0,0,0],
+                    outline: {
+                      color: [92, 66, 244],
+                      width: 4
+                    }
+                  })
+                  break
+                case "In-Embayment":
+                  fillSymbol = new SimpleFillSymbol({
+                    color: [0,0,0,0],
+                    outline: {
+                      color: [61, 247, 86],
+                      width: 4
+                    }
+                  })
+                  break
+                case "Fertilization":
+                  fillSymbol = new SimpleFillSymbol({
+                    color: [0,0,0,0],
+                    outline: {
+                      color: [61, 240, 247],
+                      width: 4
+                    }
+                  })
+                  break
+                case "Stormwater":
+                  fillSymbol = new SimpleFillSymbol({
+                    color: [0,0,0,0],
+                    outline: {
+                      color: [92, 66, 244],
+                      width: 4
+                    }
+                  })
+                  break
+              }
 
               var polyGraphic = new Graphic({
-
                 geometry: polygon,
                 symbol: fillSymbol
               })
@@ -304,15 +392,12 @@ export default {
           })
 
           view.when((i) => {
-
             view.goTo({
-              
               target: view.graphics
             })
           })
         })
         .catch(err => {
-
           console.error(err)
         })
     },
@@ -348,16 +433,33 @@ export default {
       var newFloodSliderVal = confWeight *  ( (100 - this.confidenceSliderVal[1]) / 100) * this.scoresGraphql.getScores.floodRatio
 
       this.chartData.children[0].children[0].size = newGrowthCompSliderVal * 10
+      this.growthComp = newGrowthCompSliderVal * 10
+
       this.chartData.children[0].children[1].size = newJobsSliderVal * 10
+      this.jobs = newJobsSliderVal * 10
+
       this.chartData.children[0].children[2].size = newPvlaSliderVal * 10
+      this.pvla = newPvlaSliderVal * 10
 
       this.chartData.children[1].children[0].size = newCapSliderVal * 10
+      this.capCost = newCapSliderVal * 10
+
       this.chartData.children[1].children[1].size = newOmSliderVal * 10
+      this.omCost = newOmSliderVal * 10
+
       this.chartData.children[1].children[2].size = newLcSliderVal * 10
+      this.lcCost = newLcSliderVal * 10
 
       this.chartData.children[2].children[0].size = newYearsSliderVal * 10
+      this.years = newYearsSliderVal * 10
+
       this.chartData.children[2].children[1].size = newVarpSliderVal * 10
+      this.varPerf = newVarpSliderVal * 10
+
       this.chartData.children[2].children[2].size = newFloodSliderVal * 10
+      this.floodRatio = newFloodSliderVal * 10
+
+      console.log(parseInt(this.queryInput), this.meetingID, this.capCost, this.omCost, this.lcCost, this.growthComp, this.jobs, this.varPerf, this.floodRatio, this.pvla, this.years)
     },
     modifyCommunity(val) {
 
@@ -368,8 +470,13 @@ export default {
 
 
       this.chartData.children[0].children[0].size = growthCompSliderVal * 10
+      this.growthComp = growthCompSliderVal * 10
+
       this.chartData.children[0].children[1].size =  jobsSliderVal * 10
+      this.jobs = jobsSliderVal * 10
+
       this.chartData.children[0].children[2].size = pvlaSliderVal * 10
+      this.pvla = pvlaSliderVal * 10
     },
     modifyCost(val) {
 
@@ -379,8 +486,13 @@ export default {
       var lcSliderVal = costWeight * ( (100 - val[1]) / 100 ) * this.scoresGraphql.getScores.lcCost
 
       this.chartData.children[1].children[0].size = capSliderVal * 10
+      this.capCost = capSliderVal * 10
+
       this.chartData.children[1].children[1].size = omSliderVal * 10
+      this.omCost = omSliderVal * 10
+
       this.chartData.children[1].children[2].size = lcSliderVal * 10
+      this.lcCost = lcSliderVal * 10
     },
     modifyConfidence(val) {
 
@@ -390,8 +502,13 @@ export default {
       var floodSliderVal = confWeight * ( (100 - val[1]) / 100 ) * this.scoresGraphql.getScores.floodRatio
 
       this.chartData.children[2].children[0].size = yearsSliderVal * 10
+      this.years = yearsSliderVal * 10
+
       this.chartData.children[2].children[1].size = varpSliderVal * 10
+      this.varPerf = varpSliderVal * 10
+
       this.chartData.children[2].children[2].size = floodSliderVal * 10
+      this.floodRatio = floodSliderVal * 10
     },
   },
 }
@@ -554,7 +671,7 @@ export default {
           color="indigo"
           dark
           class="ma-5"
-          @click="samScenarioCreated = !samScenarioCreated"
+          @click="insertSamVote"
         >
           <VIcon dark>
             save
