@@ -1,4 +1,4 @@
-# SAM_API
+# samBack
 
 **Scenario Assessment Model: Application Program Interface**
 
