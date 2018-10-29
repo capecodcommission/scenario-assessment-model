@@ -18,7 +18,7 @@ getScores = function({id}) {
     treatmentsData
   ]) {
 
-    scenarioData = scenarioData[0][0]
+    scenarioData = scenarioData[0]
     scenarioData.Nload_Reduction_Attenuation = scenarioData.Nload_Reduction_Attenuation || 0
     scenarioData.Nload_Reduction_InEmbay = scenarioData.Nload_Reduction_InEmbay || 0
     scenarioData.Nload_Reduction_Fert = scenarioData.Nload_Reduction_Fert || 0
@@ -31,18 +31,18 @@ getScores = function({id}) {
     a.areaID = scenarioData.AreaID
     a.treatmentIDCustomArray = []
 
-    treatmentsData[0].map((i) => {
+    treatmentsData.map((i) => {
       a.treatmentIDCustomArray.push(i.TreatmentID)
     })
 
     b.nReducInEmbay = parseFloat(scenarioData.Nload_Reduction_InEmbay)
     b.embayNCalc = parseFloat(scenarioData.Nload_Calculated_InEmbay)
     b.nReducTotal = parseFloat(scenarioData.Nload_Reduction_Attenuation) + parseFloat(scenarioData.Nload_Reduction_Fert) + parseFloat(scenarioData.Nload_Reduction_GW) + parseFloat(scenarioData.Nload_Reduction_InEmbay) + parseFloat(scenarioData.Nload_Reduction_Septic) + parseFloat(scenarioData.Nload_Reduction_SW)
-    b.treatments = treatmentsData[0]
-    b.techMatrix = techMatrix[0]
+    b.treatments = treatmentsData
+    b.techMatrix = techMatrix
 
     // Get percentiles from helper function, passing tech matrix and nreduc total calculated above
-    var percentiles = setPercentiles(techMatrix[0], b.nReducTotal)
+    var percentiles = setPercentiles(techMatrix, b.nReducTotal)
 
     b.capPercentile = percentiles[0]
     b.omPercentile = percentiles[1]
@@ -62,9 +62,9 @@ getScores = function({id}) {
       nConversionData
     ]) {
 
-      b.tblWinArray = winData[0]
-      b.ftCoeffArray = ftCoeffData[0]
-      b.nConversion = nConversionData[0]
+      b.tblWinArray = winData
+      b.ftCoeffArray = ftCoeffData
+      b.nConversion = nConversionData
       
       return b
     })

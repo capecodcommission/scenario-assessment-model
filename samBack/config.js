@@ -23,6 +23,7 @@ module.exports = {
     database: process.env.PRODDB,
     username: process.env.PRODUSER,
     password: process.env.PRODPASSWORD,
-    dialect: 'postgresql'
+    dialect: 'postgresql',
+    logging: false
   }
 };

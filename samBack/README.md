@@ -36,4 +36,5 @@ node server.js
 This project includes a `docs` folder with more details on:
 
 1.  [Instaniation](docs/development.md)
+1.  [Testing](docs/testing.md)
 1.  [Architecture](docs/architecture.md)

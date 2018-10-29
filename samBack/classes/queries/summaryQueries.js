@@ -26,15 +26,15 @@ getSummary = function({id}) {
     treatments
   ]) {
 
-    a.areaID = scenarioData[0][0].AreaID
-    b.embaymentName = scenarioData[0][0].AreaName
+    a.areaID = scenarioData[0].AreaID
+    b.embaymentName = scenarioData[0].AreaName
 
-    townNames[0].map((i) => {
+    townNames.map((i) => {
 
       b.towns.push(new Town(i.TOWN))
     })  
 
-    treatments[0].map((i) => {
+    treatments.map((i) => {
 
       var treatment = new Treatment(i.TreatmentType_ID)
       treatment.treatmentName = i.TreatmentType_Name
@@ -53,9 +53,9 @@ getSummary = function({id}) {
       tmdl
     ]) {
 
-      b.progressTMDL = tmdl[0][0].progress
+      b.progressTMDL = tmdl[0].progress
 
-      subEmbaymentNames[0].map((i) => {
+      subEmbaymentNames.map((i) => {
         
         b.subEmbayments.push(new SubEmbayment(i.SUBEM_DISP))
       })
