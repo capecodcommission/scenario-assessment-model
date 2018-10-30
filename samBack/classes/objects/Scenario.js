@@ -98,7 +98,8 @@ class Scenario {
   }
 
   getNConversionData() {
-    return DB.executeQuery('select * from "TBL_NConversion_SQL" where "EMBAY_ID" = ' + "'" + this.areaID + "'")
+    const numFormat = .999999999
+    return DB.executeQuery('select TO_NUMBER("Slope",' + "'" + numFormat + "'" + ') as "Slope", TO_NUMBER("Intercept",' + "'" + numFormat + "'" + ') as "Intercept"  from "TBL_NConversion_SQL" where "EMBAY_ID" = ' + "'" + this.areaID + "'")
   }
 
   getTMDL() {

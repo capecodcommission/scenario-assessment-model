@@ -33,7 +33,5 @@ const serverClose = function() {
 }
 
 module.exports = {
-  
-  server: server,
   serverClose: serverClose
 }

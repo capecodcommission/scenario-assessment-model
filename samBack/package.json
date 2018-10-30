@@ -15,6 +15,6 @@
     "mocha": "^5.2.0"
   },
   "scripts": {
-    "test": "mocha tests/*.js"
+    "test": "mocha tests/endPoints.js"
   }
 }
