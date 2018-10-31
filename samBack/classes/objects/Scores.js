@@ -156,12 +156,15 @@ class Scores {
     // Loop through Treatments array
     this.treatments.map((i) => {
 
-      // Get ProjectCost_kg from Tech Matrix
-      var projCostKG = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).ProjectCost_kg
+      if (i.TreatmentType_ID) {
 
-      // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz / totalNReduc
-      // $newCap += ($tProj_kg*$tNReduction)/$totalNreduc;
-      newCap += (projCostKG * i.Nload_Reduction) / totalNReduc
+        // Get ProjectCost_kg from Tech Matrix
+        var projCostKG = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).ProjectCost_kg
+
+        // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz / totalNReduc
+        // $newCap += ($tProj_kg*$tNReduction)/$totalNreduc;
+        newCap += (projCostKG * i.Nload_Reduction) / totalNReduc
+      }
     })
 
     return this.calcScore(newCap, 'cap')
@@ -178,12 +181,15 @@ class Scores {
     // Loop through Tech Matrix array
     this.treatments.map((i) => {
 
-      // var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
-      var avgLCCost = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Avg_Life_Cycle_Cost
+      if (i.TreatmentType_ID) {
 
-      // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz / totalNReduc
-      // $newVarC += ($tLC_kg*$tNReduction)/$totalNreduc;
-      newVarC += (avgLCCost * i.Nload_Reduction) / totalNReduc
+        // var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
+        var avgLCCost = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Avg_Life_Cycle_Cost
+
+        // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz / totalNReduc
+        // $newVarC += ($tLC_kg*$tNReduction)/$totalNreduc;
+        newVarC += (avgLCCost * i.Nload_Reduction) / totalNReduc
+      }
     })
 
     return this.calcScore(newVarC,'lc')
@@ -198,12 +204,15 @@ class Scores {
 
     this.treatments.map((i) => {
 
-      // Get useful life in years from tech matrix
-      var usefulYrs = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Useful_Life_Yrs
+      if (i.TreatmentType_ID) {
 
-      // Math to obtain raw score
-      // $newYears += ($years)*($tNReduction/$totalNreduc);
-      newYears += usefulYrs * (i.Nload_Reduction / totalNReduc)
+        // Get useful life in years from tech matrix
+        var usefulYrs = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Useful_Life_Yrs
+
+        // Math to obtain raw score
+        // $newYears += ($years)*($tNReduction/$totalNreduc);
+        newYears += usefulYrs * (i.Nload_Reduction / totalNReduc)
+      }
     })
 
     return this.calcScore(newYears,'years')
@@ -218,13 +227,16 @@ class Scores {
 
     this.treatments.map((i) => {
 
-      // Get percent reduction properties from technologies table
-      var tPerfHigh = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).n_percent_reduction_high
-      var tPerfLow = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).n_percent_reduction_low
+      if (i.TreatmentType_ID) {
 
-      // Math to obtain raw variable performance score
-      // $newVarP += ($tPerfHigh - $tPerfLow)*($tNReduction/$totalNreduc);
-      newVarP += (tPerfHigh - tPerfLow) * (i.Nload_Reduction / totalNloadReduc)
+        // Get percent reduction properties from technologies table
+        var tPerfHigh = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).n_percent_reduction_high
+        var tPerfLow = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).n_percent_reduction_low
+
+        // Math to obtain raw variable performance score
+        // $newVarP += ($tPerfHigh - $tPerfLow)*($tNReduction/$totalNreduc);
+        newVarP += (tPerfHigh - tPerfLow) * (i.Nload_Reduction / totalNloadReduc)
+      }
     })
     
 
@@ -243,12 +255,15 @@ class Scores {
     // this.techMatrixArray.map((i) => {
     this.treatments.map((i) => {
 
-      // var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
-      let omCostKG = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).OMCost_kg
+      if (i.TreatmentType_ID) {
 
-      // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz
-      // $newOM += ($tOM_kg*$tNReduction)/$totalNreduc;
-      newOM += (omCostKG * i.Nload_Reduction) / totalNReduc
+        // var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
+        let omCostKG = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).OMCost_kg
+
+        // Add running total of project cost kg from Tech Matrix * nload reduction from Treatment Wiz
+        // $newOM += ($tOM_kg*$tNReduction)/$totalNreduc;
+        newOM += (omCostKG * i.Nload_Reduction) / totalNReduc
+      }
     })
 
     return this.calcScore(newOM, 'om')
@@ -264,21 +279,24 @@ class Scores {
     
     // Loop through Tech Matrix array
     this.treatments.map((i) => {
-      
-      // Get Nload_reduction from Treatment_Wiz in treatArray
-      // var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
-      var projCostKG = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).ProjectCost_kg
-      projCostKG = projCostKG || 0
-      var capFTE = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).capFTE
-      capFTE = capFTE || 0
-      var omCostKG = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).OMCost_kg
-      omCostKG = omCostKG || 0
-      var omFTE = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).omFTE
-      omFTE = omFTE || 0
 
-      // Sum up 'jobs' as a running total as below
-      // $newJobs += (($tProj_kg*$tNReduction*$capFTE) + ($tOM_kg*$tNReduction*$omFTE))/1000000;
-      newJobs += ((parseFloat(projCostKG) * i.Nload_Reduction * parseFloat(capFTE)) + (parseFloat(omCostKG) * i.Nload_Reduction * parseFloat(omFTE))) / 1000000
+      if (i.TreatmentType_ID) {
+
+        // Get Nload_reduction from Treatment_Wiz in treatArray
+        // var treatmentNLoadReduc = treatArray.find((j) => i.Technology_ID === j.TreatmentType_ID).Nload_Reduction
+        var projCostKG = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).ProjectCost_kg
+        projCostKG = projCostKG || 0
+        var capFTE = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).capFTE
+        capFTE = capFTE || 0
+        var omCostKG = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).OMCost_kg
+        omCostKG = omCostKG || 0
+        var omFTE = techArray.find((j) => j.Technology_ID === i.TreatmentType_ID).omFTE
+        omFTE = omFTE || 0
+
+        // Sum up 'jobs' as a running total as below
+        // $newJobs += (($tProj_kg*$tNReduction*$capFTE) + ($tOM_kg*$tNReduction*$omFTE))/1000000;
+        newJobs += ((parseFloat(projCostKG) * i.Nload_Reduction * parseFloat(capFTE)) + (parseFloat(omCostKG) * i.Nload_Reduction * parseFloat(omFTE))) / 1000000
+      }
     })
     // Return the running 'jobs' total
     return this.calcScore(newJobs,'jobs')
@@ -296,35 +314,38 @@ class Scores {
 
     this.treatments.map((i) => {
 
-      // Find two properties from tech matrix array by treatment type id
-      var newCompat = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).NewCompat
+      if (i.TreatmentType_ID) {
 
-      newCompat = newCompat || 0
+        // Find two properties from tech matrix array by treatment type id
+        var newCompat = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).NewCompat
 
-      var tblFiltered = tblWin.filter((j) => {return j.TreatmentID === i.TreatmentID})
+        newCompat = newCompat || 0
 
-      tblFiltered.map((j) => {
+        var tblFiltered = tblWin.filter((j) => {return j.treatmentid === i.TreatmentID})
 
-        if (j.EconDevType !== "Limited Development Area" && j.EconDevType !== "Priority Protection Area") {treatGC += newCompat}
-        if (j.DensityCat == 5) {treatGC += 0}
-        if (j.DensityCat == 4) {treatGC += 1}
-        if (j.DensityCat == 3) {treatGC += 2}
-        if (j.DensityCat == 2) {treatGC += 3}
-        if (j.DensityCat == 1) {treatGC += 4}
-        if (j.BioMap2 == 2) {treatGC += newCompat}
-        if (j.CWMP == 2) {treatGC += newCompat}
-        if (j.FLOWTHRUCOEF > .5) {treatGC += newCompat}
-        if (j.NewSLIRM !== 1) {treatGC += newCompat}
-      })
+        tblFiltered.map((j) => {
 
-      if (i.Treatment_Class == "In-Embayment") {
+          if (j.econdevtype !== "Limited Development Area" && j.econdevtype !== "Priority Protection Area") {treatGC += newCompat}
+          if (j.densitycat == 5) {treatGC += 0}
+          if (j.densitycat == 4) {treatGC += 1}
+          if (j.densitycat == 3) {treatGC += 2}
+          if (j.densitycat == 2) {treatGC += 3}
+          if (j.densitycat == 1) {treatGC += 4}
+          if (j.biomap2 == 2) {treatGC += newCompat}
+          if (j.cwmp == 2) {treatGC += newCompat}
+          if (j.flowthrucoef > .5) {treatGC += newCompat}
+          if (j.newslirm !== 1) {treatGC += newCompat}
+        })
 
-        // $newGC += (14)*($tNReduction/$totalNreduc);
-        newGC += 14 * (i.Nload_Reduction/totalNReduc)
-      } else {
+        if (i.Treatment_Class == "In-Embayment") {
 
-        // $newGC += ($treatGC/$tParcels)*($tNReduction/$totalNreduc);
-        newGC += (treatGC/i.Treatment_Parcels) * (i.Nload_Reduction/totalNReduc)
+          // $newGC += (14)*($tNReduction/$totalNreduc);
+          newGC += 14 * (i.Nload_Reduction/totalNReduc)
+        } else {
+
+          // $newGC += ($treatGC/$tParcels)*($tNReduction/$totalNreduc);
+          newGC += (treatGC/i.Treatment_Parcels) * (i.Nload_Reduction/totalNReduc)
+        }
       }
     })  
     
@@ -346,7 +367,7 @@ class Scores {
     // Get flood zone parcel count for embayment
     tblWin.map((i) => {
 
-      if (i.NewSLIRM === 1) {
+      if (i.newslirm === 1) {
 
         parFZCount++
       }
@@ -354,24 +375,27 @@ class Scores {
 
     this.treatments.map((i) => {
 
-      // Keep running total of treatments, obtain resilience from tech matrix
-      treatCount++
-      var resil = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Resilience
-      resil = resil || 0
+      if (i.TreatmentType_ID) {
 
-      // If treatment is custom polygon, obtain flood zone sum using parcels within treatment
-      if (i.Custom_POLY == 1) {
+        // Keep running total of treatments, obtain resilience from tech matrix
+        treatCount++
+        var resil = techArray.find((j) => {return j.Technology_ID === i.TreatmentType_ID}).Resilience
+        resil = resil || 0
 
-        tblWin.map((j) => {
-          
-          treatFZ += j.NewSLIRM
-        })
-  
-        floodSum += treatFZ + resil
-      } else {
-  
-        /// Otherwise, obtain flood zone sum using embayment
-        floodSum += parFZCount * resil
+        // If treatment is custom polygon, obtain flood zone sum using parcels within treatment
+        if (i.Custom_POLY == 1) {
+
+          tblWin.map((j) => {
+            
+            treatFZ += j.newslirm
+          })
+    
+          floodSum += treatFZ + resil
+        } else {
+    
+          /// Otherwise, obtain flood zone sum using embayment
+          floodSum += parFZCount * resil
+        }
       }
     })  
 
@@ -403,15 +427,15 @@ class Scores {
     // Total property values
     this.tblWinArray.map((i) => {
 
-      totalPropVal += parseFloat(i.TotalAssessedValue)
+      totalPropVal += parseFloat(i.totalassessedvalue)
 
-      if (i.Waterfront === 1) {
+      if (i.waterfront === 1) {
         
-        waterfrontPropVal += parseFloat(i.TotalAssessedValue)
+        waterfrontPropVal += parseFloat(i.totalassessedvalue)
       }
     })
 
-    if (embayNReduc != null) {
+    if (embayNReduc != null || embayNReduc != 0) {
 
       // Math to obtain property value loss avoided
       // $pvla = ((($embayNreduc*$slope+$intercept)/($embayNcalc*$slope+$intercept))*0.61*$waterfront_prop_value + $total_prop_value)/$total_prop_value;

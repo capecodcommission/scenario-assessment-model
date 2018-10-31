@@ -28,7 +28,9 @@
   - [`envExample.md`](#db)
 
 - [`tests`](#tests)
-  - [`scenarioTest.js`](#tests)
+  - [`endPoints.js`](#tests)
+  - [`scoreSubTest.js`](#tests)
+  - [`summarySubTest.js`](#tests)
 
 - [`node_modules`](#db)
 - [`SAM_Monica_Backup`](#db)

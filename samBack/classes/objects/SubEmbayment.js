@@ -1,12 +1,12 @@
 class SubEmbayment {
 
-  constructor(name) {
+  constructor(subem_disp) {
 
-    this.name = name
+    this.subem_disp = subem_disp
   }
 
   name() {
-    return this.name
+    return this.subem_disp
   }
 }
 

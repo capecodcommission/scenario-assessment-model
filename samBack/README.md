@@ -28,7 +28,7 @@ yarn
 # 4. Start server
 node server.js
 
-# 6. Read the documentation linked below for "Setup and development".
+# 6. Read documentation linked below
 ```
 
 ## Documentation

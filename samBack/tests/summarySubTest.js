@@ -56,7 +56,7 @@ const summarySubTest = function(scenRow, townArray, treatArray, subArray, tmdlRo
   describe("Check TMDL", () => {
     it("should return non-null TMDL and TMDL <= 100", async () => {
       expect(tmdlRow.progress).to.be.a('number')
-      expect(tmdlRow.progress).to.be.below(100)
+      expect(tmdlRow.progress).to.be.at.most(100)
     });
   });
 }

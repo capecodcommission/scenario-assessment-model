@@ -41,7 +41,7 @@ class Scenario {
   // Retrieve subembayment names intersecting with treatment polygons
   getScenarioSubembaymentNames() {
 
-    return DB.executeQuery('SELECT distinct se."SUBEM_DISP" FROM "Treatment_Wiz" as tw INNER JOIN "Subembayments" as se	ON ST_Intersects(se."Shape", tw."POLY_STRING") AND tw."ScenarioID" = ' + this.id +	' AND se."EMBAY_ID" = ' + this.areaID)
+    return DB.executeQuery('SELECT * from get_subembaymentnames(' + this.id + ',' + this.areaID + ')')
   }
 
   // Retrieve data from Scenario Wiz
@@ -83,7 +83,7 @@ class Scenario {
 
   // Retrieve data from tblWin by scenario id and embayment name
   getWINData() {
-    return DB.executeQuery('SELECT tw."TreatmentID", sw."EconDevType", sw."DensityCat", sw."BioMap2", sw."CWMP", sw."NaturalAttenuation", sw."NewSLIRM", sw."TotalAssessedValue", sw."Waterfront" FROM "Treatment_Wiz" as tw INNER JOIN "WIN" as sw ON ST_Intersects(sw."SHAPE", tw."POLY_STRING") AND tw."ScenarioID" = ' + this.id + ' and "Embayment" = ' + "'" + this.areaName + "'")
+    return DB.executeQuery('select * from get_winparcels(' + this.id + ',' + "'" + this.areaName + "'" + ')')
   }
 
   getTechnologiesData() {
@@ -97,11 +97,13 @@ class Scenario {
     return DB.executeQuery('select * from technologies', DB.tmConnect)
   }
 
+  // Retrieve data from TBL_NConversion_SQL
   getNConversionData() {
     const numFormat = .999999999
     return DB.executeQuery('select TO_NUMBER("Slope",' + "'" + numFormat + "'" + ') as "Slope", TO_NUMBER("Intercept",' + "'" + numFormat + "'" + ') as "Intercept"  from "TBL_NConversion_SQL" where "EMBAY_ID" = ' + "'" + this.areaID + "'")
   }
 
+  // Execute PostgreSQL function to calculate embayment TMDL by scenario
   getTMDL() {
     return DB.executeQuery('select * from get_tmdl(' + this.id + ',' + this.areaID + ')')
   }

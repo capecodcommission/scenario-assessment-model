@@ -36,7 +36,7 @@ DEVUSER="mario"
 DEVPASSWORD="password"
 ```
 
-Ensure Sequelize is using development configuration env variables in `/db/db.js`
+Ensure Sequelize is using development configuration env variables in `classes/db/db.js`
 
 ```bash
 const sequelize = new Sequelize(config.development)
@@ -59,7 +59,7 @@ PRODUSER="produser"
 PRODPASSWORD="prodpassword"
 ```
 
-Point Sequelize at production configuration env variables in `/db/db.js`
+Point Sequelize at production configuration env variables in `classes/db/db.js`
 
 ```bash
 const sequelize = new Sequelize(config.production)
@@ -68,10 +68,13 @@ const sequelize = new Sequelize(config.production)
 SSH into Apache server, cd to relevant directory
 
 ```bash
-# Start shell session
+# Install forever from npm if you haven't yet
+npm i -g forever
+
+# Start new terminal instance
 screen
 
-# Launch server using forever module
+# Launch server with forever module
 # https://github.com/foreverjs/forever
 forever start server.js
 ```

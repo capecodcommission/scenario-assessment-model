@@ -11,7 +11,7 @@ class DB {
   connect() {
     this.sequelize.authenticate()
     .then(() => {
-      // console.log('connected')
+      console.log('connected')
     })
     .catch((err) => {
       console.log('error',err)

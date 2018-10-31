@@ -612,7 +612,7 @@ export default {
         </VCardTitle>
         <VCardText
           v-for="subEmbayment in scenarioSubEmbayments"
-          :key="subEmbayment.name"
+          :key="subEmbayment.subem_disp"
           primary-title
           class="pa-0"
         >
