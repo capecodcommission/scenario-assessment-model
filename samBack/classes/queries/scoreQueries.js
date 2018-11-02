@@ -20,6 +20,8 @@ getScores = async function({id}) {
   const winData = await a.getWINData()
   const nConversionData = await a.getNConversionData()
 
+  console.log(scenarioData.Nload_Calculated_InEmbay)
+
   // Set any NULL field to zero, initialize arrays, fill class properties with query responses above
   scenarioData.Nload_Reduction_Attenuation = scenarioData.Nload_Reduction_Attenuation || 0
   scenarioData.Nload_Reduction_InEmbay = scenarioData.Nload_Reduction_InEmbay || 0
@@ -29,7 +31,7 @@ getScores = async function({id}) {
   scenarioData.Nload_Reduction_Septic = scenarioData.Nload_Reduction_Septic || 0
   scenarioData.Nload_Reduction_SW = scenarioData.Nload_Reduction_SW || 0
   b.nReducInEmbay = parseFloat(scenarioData.Nload_Reduction_InEmbay)
-  b.embayNCalc = parseFloat(scenarioData.Nload_Calculated_InEmbay)
+  b.embayNCalc = parseFloat(scenarioData.Nload_Calculated_InEmbay) || 0
   b.nReducTotal = parseFloat(scenarioData.Nload_Reduction_Attenuation) + parseFloat(scenarioData.Nload_Reduction_Fert) + parseFloat(scenarioData.Nload_Reduction_GW) + parseFloat(scenarioData.Nload_Reduction_InEmbay) + parseFloat(scenarioData.Nload_Reduction_Septic) + parseFloat(scenarioData.Nload_Reduction_SW)
   b.treatments = treatmentsData
   b.techMatrix = techMatrix

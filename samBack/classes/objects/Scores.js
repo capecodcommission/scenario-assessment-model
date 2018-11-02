@@ -1,3 +1,4 @@
+// Class to hold all data and calculations related SAM scoring metrics
 class Scores {
 
   constructor(id, techMatrix, technologies, nReducTotal, treatments, capPercentile, omPercentile, lcPercentile, perfPercentile, yearsPercentile, jobsPercentile, tblWinArray, ftCoeffArray, nReducInEmbay, nConversion, embayNCalc) {
@@ -23,17 +24,21 @@ class Scores {
     return this.id
   }
 
+  // Returns normalized score for any metric type
   calcScore(rawScore, type, parFZCount = null) {
 
-    var capPercentile = this.capPercentile
-    var omPercentile = this.omPercentile
-    var lcPercentile = this.lcPercentile
-    var perfPercentile = this.perfPercentile
-    var yearsPercentile = this.yearsPercentile
-    var jobsPercentile = this.jobsPercentile
+    // Obtain filled percentiles 
+    const capPercentile = this.capPercentile
+    const omPercentile = this.omPercentile
+    const lcPercentile = this.lcPercentile
+    const perfPercentile = this.perfPercentile
+    const yearsPercentile = this.yearsPercentile
+    const jobsPercentile = this.jobsPercentile
 
+    // Check metric type, use relevant percentile and raw score to calculate nomalized score
     switch(type) {
 
+      // Capital Cost
       case 'cap':
         if (rawScore <= capPercentile[0]) {return 10}
         if (capPercentile[0] < rawScore && rawScore <= capPercentile[1]) {return 9}
@@ -46,6 +51,7 @@ class Scores {
         if (capPercentile[7] < rawScore && rawScore <= capPercentile[8]) {return 2}
         if (rawScore > capPercentile[8]) {return 1}
 
+      // OM Cost
       case 'om':
         if (rawScore <= omPercentile[0]) {return 10}
         if (omPercentile[0] < rawScore && rawScore <= omPercentile[1]) {return 9}
@@ -58,6 +64,7 @@ class Scores {
         if (omPercentile[7] < rawScore && rawScore <= omPercentile[8]) {return 2}
         if (rawScore > omPercentile[8]) {return 1}
 
+      // LC Cost
       case 'lc':
         if (rawScore <= lcPercentile[0]) {return 10}
         if (lcPercentile[0] < rawScore && rawScore <= lcPercentile[1]) {return 9}
@@ -70,6 +77,7 @@ class Scores {
         if (lcPercentile[7] < rawScore && rawScore <= lcPercentile[8]) {return 2}
         if (rawScore > lcPercentile[8]) {return 1}
 
+      // Variable Performance
       case 'varp':
         if (rawScore <= perfPercentile[0]) {return 10}
         if (perfPercentile[0] < rawScore && rawScore <= perfPercentile[1]) {return 9}
@@ -82,6 +90,7 @@ class Scores {
         if (perfPercentile[7] < rawScore && rawScore <= perfPercentile[8]) {return 2}
         if (rawScore > perfPercentile[8]) {return 1}
 
+      // Years
       case 'years':
         if (rawScore <= yearsPercentile[0]) {return 1}
         if (yearsPercentile[0] < rawScore && rawScore <= yearsPercentile[1]) {return 2}
@@ -94,6 +103,7 @@ class Scores {
         if (yearsPercentile[7] < rawScore && rawScore <= yearsPercentile[8]) {return 9}
         if (rawScore > yearsPercentile[8]) {return 10}
 
+      // Jobs
       case 'jobs':
         if (rawScore <= jobsPercentile[0]) {return 1}
         if (jobsPercentile[0] < rawScore && rawScore <= jobsPercentile[1]) {return 2}
@@ -106,6 +116,7 @@ class Scores {
         if (jobsPercentile[7] < rawScore && rawScore <= jobsPercentile[8]) {return 9}
         if (rawScore > jobsPercentile[8]) {return 10}
 
+      // Growth Compatibility
       case 'gc':
         if (rawScore / 14 <= .1) {return 1}
         if (.1 < rawScore / 14 && rawScore / 14 <= .2) {return 2}
@@ -118,6 +129,7 @@ class Scores {
         if (.8 < rawScore / 14 && rawScore / 14 <= .9) {return 9}
         if (.9 < rawScore / 14) {return 10}
 
+      // Property Value Loss Avoided
       case 'pvla':
         if (rawScore <= 1.061) {return 1}
         if (1.061 < rawScore && rawScore <= 1.122) {return 2}
@@ -130,6 +142,7 @@ class Scores {
         if (1.498 < rawScore && rawScore <= 1.549) {return 9}
         if (1.549 < rawScore) {return 10}
 
+      // Flood
       case 'flood':
         if (rawScore <= .1 && parFZCount > 0) {return 1}
         if (.1 < rawScore && rawScore <= .2) {return 2}
@@ -423,6 +436,11 @@ class Scores {
     var embayNCalc = this.embayNCalc
     var waterfrontPropVal = 0
     var totalPropVal = 0
+
+    console.log(embayNReduc)
+    console.log(slope)
+    console.log(intercept)
+    console.log(embayNCalc)
 
     // Total property values
     this.tblWinArray.map((i) => {

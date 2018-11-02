@@ -1,5 +1,7 @@
+// Test all data used for getScores GraphQL endpoint
 const scoreSubTest = function(techArray, winArray, nConversionRow, expect) {
 
+  // Check Tech_Matrix column types
   describe("Check Tech Matrix Data", () => {
     it("should return non-null values", () => {
       techArray.forEach(i => {
@@ -18,6 +20,7 @@ const scoreSubTest = function(techArray, winArray, nConversionRow, expect) {
     });
   });
 
+  // Check TBL_WIN column types
   describe("Check WIN Parcel Data", () => {
     it("should return non-null values", () => {
       winArray.forEach(i => {
@@ -36,6 +39,7 @@ const scoreSubTest = function(techArray, winArray, nConversionRow, expect) {
     });
   });
 
+  // Check TBL_NConversion_SQL column types
   describe("Check N_Conversion Data", () => {
     it("should return non-null values", () => {
       expect(nConversionRow.Slope).to.be.a('number')

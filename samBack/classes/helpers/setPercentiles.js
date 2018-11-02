@@ -16,6 +16,8 @@ setPercentiles = function(techMatrix, nReducTotal) {
 
   techMatrix.map((i) => {
 
+    // Convert data types for further processing
+    // TODO: Check unit tests to see if conversion still necessary
     i.n_percent_reduction_high = parseFloat(i.n_percent_reduction_high)
     i.n_percent_reduction_low = parseFloat(i.n_percent_reduction_low)
     i.ProjectCost_kg = parseFloat(i.ProjectCost_kg)

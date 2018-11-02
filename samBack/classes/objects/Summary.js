@@ -36,6 +36,7 @@ class Summary {
   }
 
   progressTMDL() {
+    
     return this.progress
   }
 }

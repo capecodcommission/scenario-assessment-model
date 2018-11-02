@@ -1,5 +1,7 @@
+// Test all data required for getSummary GraphQL query
 const summarySubTest = function(scenRow, townArray, treatArray, subArray, tmdlRow, expect) {
   
+  // Check Scenario_Wiz column types
   describe("Check Scenario Data", () => {
     it("should return non-null values", () => {
       expect(scenRow.ScenarioID).to.be.a('number')
@@ -15,6 +17,7 @@ const summarySubTest = function(scenRow, townArray, treatArray, subArray, tmdlRo
     });
   });
 
+  // Check Scenario_Town column type
   describe("Check Town Names", () => {
     it("should return non-null values", () => {
       townArray.forEach(i => {
@@ -25,6 +28,7 @@ const summarySubTest = function(scenRow, townArray, treatArray, subArray, tmdlRo
     });
   });
 
+  // Check Treatment_Wiz column types
   describe("Check Treatment Data", () => {
     it("should return non-null values", () => {
       treatArray.forEach(i => {
@@ -43,6 +47,7 @@ const summarySubTest = function(scenRow, townArray, treatArray, subArray, tmdlRo
     });
   });
 
+  // Check function get_subembaymentnames column types
   describe("Check Submebayment Names", () => {
     it("should return non-null values", async () => {
       subArray.forEach(i => {
@@ -53,6 +58,7 @@ const summarySubTest = function(scenRow, townArray, treatArray, subArray, tmdlRo
     });
   });
 
+  // Check function get_tmdl column types
   describe("Check TMDL", () => {
     it("should return non-null TMDL and TMDL <= 100", async () => {
       expect(tmdlRow.progress).to.be.a('number')
