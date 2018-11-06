@@ -26,5 +26,20 @@ module.exports = {
     password: process.env.PRODPASSWORD,
     dialect: 'postgresql',
     logging: false
+  },
+  wmvpConfig: {
+    user: 'DBAccess',
+    password: 'Acce$$DB',
+    server: '10.10.1.174',
+    port: '65335',
+    database: 'wMVP3_CapeCodMA',
+    stream: true,
+    requestTimeout: 300000,
+    connectionTimeout: 300000,
+    pool: {
+      max: 100,
+      min: 0,
+      idleTimeoutMillis: 300000
+    }
   }
 };

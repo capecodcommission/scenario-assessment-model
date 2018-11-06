@@ -1,6 +1,7 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const wiz_treatment_towns = sequelize.define('wiz_treatment_towns', {
+    wtt_id: DataTypes.INTEGER,
     wtt_scenario_id: DataTypes.INTEGER,
     wtt_treatment_id: DataTypes.INTEGER,
     wtt_town_id: DataTypes.INTEGER,

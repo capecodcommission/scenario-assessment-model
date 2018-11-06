@@ -4,10 +4,9 @@ var wmvpConfig = {
   user: 'DBAccess',
   password: 'Acce$$DB',
   server: '10.10.1.174',
-  port: 65335,
+  port: '65335',
   database: 'wMVP3_CapeCodMA',
   stream: true,
-  encrypt: false,
   requestTimeout: 300000,
   connectionTimeout: 300000,
   pool: {
@@ -17,11 +16,17 @@ var wmvpConfig = {
   }
 }
 
-sql.connect(wmvpConfig, err => {
+var wmvpConnect = new sql.ConnectionPool(wmvpConfig)
 
-  new sql.Request().query('select * from dbo.wiz_treatment_towns', (err, result) => {
+Promise.all([
+  wmvpConnect.connect()
+]).then(([]) => {
 
-    console.log(result.recordset)
-    console.log(err)
+  var request = new sql.Request(wmvpConnect)
+
+  request.query('select * from dbo.wiz_treatment_towns')
+  .then((result) => {
+
+    console.log(result.recordset[0])
   })
 })
