@@ -3,7 +3,8 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('FTCoeff', {
       FTC_ID: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        primaryKey: true
       },
       EMBAY_ID: {
         type: Sequelize.INTEGER,

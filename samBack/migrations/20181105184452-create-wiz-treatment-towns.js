@@ -4,7 +4,7 @@ module.exports = {
     return queryInterface.createTable('wiz_treatment_towns', {
       wtt_id: {
         type: Sequelize.INTEGER,
-        allowNull: true
+        primaryKey: true
       },
       wtt_scenario_id: {
         type: Sequelize.INTEGER,

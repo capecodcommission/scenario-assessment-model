@@ -65,7 +65,7 @@ Promise.all([
   request.stream = true
   request.query(pmQuery)
   request.on('row', row => {
-    console.log(typeof row)
+    console.log(row)
   })
   request.on('done', result => {
     console.log('done')

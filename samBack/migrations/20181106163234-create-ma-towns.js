@@ -3,7 +3,8 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('MATowns', {
       OBJECTID: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        primaryKey: true
       },
       TOWN_ID: {
         type: Sequelize.BIGINT

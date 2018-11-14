@@ -15,7 +15,9 @@ module.exports = (sequelize, DataTypes) => {
     AVERAGED: DataTypes.INTEGER,
     SUBWATER_TOTAL: DataTypes.FLOAT,
     SUBEMBAY_PCT: DataTypes.FLOAT
-  }, {});
+  }, {
+    freezeTableName: true
+  });
   ftcoeff.associate = function(models) {
     // associations can be defined here
   };

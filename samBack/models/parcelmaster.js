@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     town_id: DataTypes.INTEGER,
     subwater_id: DataTypes.INTEGER,
     treatment_id: DataTypes.INTEGER,
-    treatment_type: DataTypes.INTEGER,
+    treatment_type_id: DataTypes.INTEGER,
     treatment_class: DataTypes.STRING,
     treatment_name: DataTypes.STRING,
     scenario_id: DataTypes.INTEGER,
@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     running_nload_septic: DataTypes.FLOAT,
     running_nload_fert: DataTypes.FLOAT,
     running_nload_storm: DataTypes.FLOAT,
-    running_nload_atmoshere: DataTypes.FLOAT,
+    running_nload_atmosphere: DataTypes.FLOAT,
     running_nload_total: DataTypes.FLOAT,
     att_running_nload_total: DataTypes.FLOAT,
     running_nload_treated: DataTypes.FLOAT,
@@ -35,7 +35,9 @@ module.exports = (sequelize, DataTypes) => {
     att_final_nload_total: DataTypes.FLOAT,
     final_nload_treated: DataTypes.FLOAT,
     final_nload_removed: DataTypes.FLOAT
-  }, {});
+  }, {
+    freezeTableName: true
+  });
   parcelMaster.associate = function(models) {
     // associations can be defined here
   };

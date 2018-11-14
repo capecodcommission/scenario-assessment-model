@@ -3,7 +3,8 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Treatment_Wiz', {
       TreatmentID: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        primaryKey: true
       },
       ScenarioID: {
         type: Sequelize.INTEGER,

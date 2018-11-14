@@ -35,7 +35,9 @@ module.exports = (sequelize, DataTypes) => {
     Parent_TreatmentId: DataTypes.INTEGER,
     treatment_icon: DataTypes.STRING,
     Treatment_WaterUse: DataTypes.FLOAT
-  }, {});
+  }, {
+    freezeTableName: true
+  });
   Treatment_Wiz.associate = function(models) {
     // associations can be defined here
   };

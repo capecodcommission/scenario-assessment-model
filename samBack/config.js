@@ -34,12 +34,14 @@ module.exports = {
     port: '65335',
     database: 'wMVP3_CapeCodMA',
     stream: true,
-    requestTimeout: 300000,
-    connectionTimeout: 300000,
+    requestTimeout: 3000000,
+    connectionTimeout: 3000000,
     pool: {
-      max: 100,
-      min: 0,
-      idleTimeoutMillis: 300000
+      max: 1000000,
+      min: 1,
+      idleTimeoutMillis: 3000000,
+      evictionRunIntervalMillis: 5,
+      softIdleTimeoutMillis: 5
     }
   }
 };

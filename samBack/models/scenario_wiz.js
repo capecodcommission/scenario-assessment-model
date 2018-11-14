@@ -51,7 +51,9 @@ module.exports = (sequelize, DataTypes) => {
     parcels_septic: DataTypes.INTEGER,
     parcels_sewer: DataTypes.INTEGER,
     parcels_gwdp: DataTypes.INTEGER
-  }, {});
+  }, {
+    freezeTableName: true
+  });
   Scenario_Wiz.associate = function(models) {
     // associations can be defined here
   };
