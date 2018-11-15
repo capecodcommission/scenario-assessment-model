@@ -43,7 +43,7 @@ module.exports = {
         allowNull: true
       },
       geo_point: {
-        type: Sequelize.TEXT,
+        type: Sequelize.GEOMETRY,
         allowNull: true
       },
       ww_flow: {

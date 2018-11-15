@@ -59,11 +59,11 @@ module.exports = {
       .then((result) => {
         return queryInterface.bulkInsert('Treatment_Wiz', result.recordset)
       })
-      .then(() => {
-        return queryInterface.changeColumn('Treatment_Wiz', 'POLY_STRING', {
-          type: Sequelize.GEOMETRY
-        })
-      })
+      // .then(() => {
+      //   return queryInterface.changeColumn('Treatment_Wiz', 'POLY_STRING', {
+      //     type: Sequelize.GEOMETRY
+      //   })
+      // })
     })
   },
 

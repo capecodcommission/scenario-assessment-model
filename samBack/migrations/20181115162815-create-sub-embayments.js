@@ -1,146 +1,118 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Treatment_Wiz', {
-      TreatmentID: {
+    return queryInterface.createTable('SubEmbayments', {
+      OBJECTID: {
         type: Sequelize.INTEGER,
         primaryKey: true
       },
-      ScenarioID: {
+      SUBEM_ID: {
         type: Sequelize.INTEGER,
         allowNull: true
       },
-      TreatmentType_Name: {
+      SUBEM_NAME: {
         type: Sequelize.STRING,
         allowNull: true
       },
-      TreatmentType_ID: {
+      SUBEM_DISP: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      EMBAY_ID: {
         type: Sequelize.INTEGER,
         allowNull: true
       },
-      Treatment_Class: {
+      EMBAY_NAME: {
         type: Sequelize.STRING,
         allowNull: true
       },
-      Treatment_Value: {
-        type: Sequelize.FLOAT,
-        allowNull: true
-      },
-      Treatment_PerReduce: {
-        type: Sequelize.FLOAT,
-        allowNull: true
-      },
-      Treatment_UnitMetric: {
+      EMBAY_DISP: {
         type: Sequelize.STRING,
         allowNull: true
       },
-      Treatment_MetricValue: {
+      Nload_Sept: {
         type: Sequelize.FLOAT,
         allowNull: true
       },
-      Cost_TC_Input: {
+      Nload_Fert: {
         type: Sequelize.FLOAT,
         allowNull: true
       },
-      Cost_OM_Input: {
+      Nload_Storm: {
         type: Sequelize.FLOAT,
         allowNull: true
       },
-      Treatment_Acreage: {
+      Nload_Total: {
         type: Sequelize.FLOAT,
         allowNull: true
       },
-      Treatment_Parcels: {
+      Nload_Parcels: {
         type: Sequelize.INTEGER,
         allowNull: true
       },
-      CreateDate: {
-        type: Sequelize.STRING,
+      Sept_Tar_Kg: {
+        type: Sequelize.FLOAT,
         allowNull: true
       },
-      UpdateDate: {
-        type: Sequelize.STRING,
+      Total_Tar_Kg: {
+        type: Sequelize.FLOAT,
         allowNull: true
       },
-      POLY_STRING: {
+      MEP_Sept_Tar_Kg: {
+        type: Sequelize.FLOAT,
+        allowNull: true
+      },
+      MEP_Total_Tar_Kg: {
+        type: Sequelize.FLOAT,
+        allowNull: true
+      },
+      MEP_Source: {
+        type: Sequelize.INTEGER,
+        allowNull: true
+      },
+      MEP_Sept_Tar_p: {
+        type: Sequelize.FLOAT,
+        allowNull: true
+      },
+      MEP_Total_Tar_p: {
+        type: Sequelize.FLOAT,
+        allowNull: true
+      },
+      X_Centroid: {
+        type: Sequelize.FLOAT,
+        allowNull: true
+      },
+      Y_Centroid: {
+        type: Sequelize.FLOAT,
+        allowNull: true
+      },
+      Acreage: {
+        type: Sequelize.FLOAT,
+        allowNull: true
+      },
+      Shape: {
         type: Sequelize.GEOMETRY,
         allowNull: true
       },
-      Custom_POLY: {
+      GeoString: {
+        type: Sequelize.TEXT,
+        allowNull: true
+      },
+      ParcSEPTIC: {
         type: Sequelize.INTEGER,
         allowNull: true
       },
-      Cost_Capital: {
-        type: Sequelize.FLOAT,
-        allowNull: true
-      },
-      Cost_OM: {
-        type: Sequelize.FLOAT,
-        allowNull: true
-      },
-      Cost_Collection: {
-        type: Sequelize.FLOAT,
-        allowNull: true
-      },
-      Cost_TransportDisposal: {
-        type: Sequelize.FLOAT,
-        allowNull: true
-      },
-      Cost_NonConstruction: {
-        type: Sequelize.FLOAT,
-        allowNull: true
-      },
-      Cost_Monitor: {
-        type: Sequelize.FLOAT,
-        allowNull: true
-      },
-      Cost_Total: {
-        type: Sequelize.FLOAT,
-        allowNull: true
-      },
-      Nload_Reduction: {
-        type: Sequelize.FLOAT,
-        allowNull: true
-      },
-      Cost20yr_OM: {
-        type: Sequelize.FLOAT,
-        allowNull: true
-      },
-      Cost20yr_Cap: {
-        type: Sequelize.FLOAT,
-        allowNull: true
-      },
-      Cost_Replacement: {
-        type: Sequelize.FLOAT,
-        allowNull: true
-      },
-      Treatment_Wastewater_Flow: {
-        type: Sequelize.FLOAT,
-        allowNull: true
-      },
-      Clipped_Rds_LinFeet: {
-        type: Sequelize.FLOAT,
-        allowNull: true
-      },
-      Treatment_WU_Parcels: {
+      ParcGWDP: {
         type: Sequelize.INTEGER,
         allowNull: true
       },
-      Parent_TreatmentId: {
+      ParcSEWERED: {
         type: Sequelize.INTEGER,
         allowNull: true
-      },
-      treatment_icon: {
-        type: Sequelize.STRING,
-        allowNull: true
-      },
-      Treatment_WaterUse: {
-        type: Sequelize.FLOAT,
-        allowNull: true
-      },
+      }
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Treatment_Wiz');
+    return queryInterface.dropTable('SubEmbayments');
   }
 };

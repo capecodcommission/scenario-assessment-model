@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     OBJECTID: DataTypes.INTEGER,
     TOWN_ID: DataTypes.BIGINT,
     TOWN: DataTypes.STRING,
+    SHAPE: DataTypes.GEOMETRY,
     SHAPE_AREA: DataTypes.REAL,
     SHAPE_LEN: DataTypes.REAL,
     GEOSTRING: DataTypes.TEXT,

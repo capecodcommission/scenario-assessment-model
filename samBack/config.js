@@ -8,7 +8,13 @@ module.exports = {
     username: process.env.DEVUSER,
     password: process.env.DEVPASSWORD,
     dialect: 'postgresql',
-    seederStorage: 'sequelize'
+    seederStorage: 'sequelize',
+    pool: {
+      max: 5,
+      min: 0,
+      idle: 20000,
+      acquire: 20000
+    }
   },
   test: {
     host: process.env.TESTHOST,

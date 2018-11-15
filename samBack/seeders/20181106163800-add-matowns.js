@@ -17,6 +17,7 @@ module.exports = {
           [OBJECTID]
           ,[TOWN_ID]
           ,[TOWN]
+          ,convert(nvarchar(max),[SHAPE]) as SHAPE
           ,[SHAPE_AREA]
           ,[SHAPE_LEN] 
           ,[GEOSTRING]
@@ -29,11 +30,11 @@ module.exports = {
       `)
       .then((result) => {
         return queryInterface.bulkInsert('MATowns', result.recordset)
-        .then(() => {
-          return queryInterface.changeColumn('MATowns','GEOSTRING', {
-            type: Sequelize.GEOMETRY
-          })
-        })
+        // .then(() => {
+        //   return queryInterface.changeColumn('MATowns','GEOSTRING', {
+        //     type: Sequelize.GEOMETRY
+        //   })
+        // })
       })
     })
   },

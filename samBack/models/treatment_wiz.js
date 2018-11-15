@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
     Treatment_Parcels: DataTypes.INTEGER,
     CreateDate: DataTypes.STRING,
     UpdateDate: DataTypes.STRING,
-    POLY_STRING: DataTypes.TEXT,
+    POLY_STRING: DataTypes.GEOMETRY,
     Custom_POLY: DataTypes.INTEGER,
     Cost_Capital: DataTypes.FLOAT,
     Cost_OM: DataTypes.FLOAT,

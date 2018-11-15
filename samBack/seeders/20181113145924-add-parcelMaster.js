@@ -18,12 +18,15 @@ module.exports = {
       var batchRows = []
       request.on('row', row => {
         batchRows.push(row)
-        if (batchRows.length === 5000) {
-          queryInterface.bulkInsert('parcelMaster',batchRows)
+        if (batchRows.length === 30000 ) {
+          queryInterface.bulkInsert('parcelMaster',batchRows).catch((err) => {console.log('bulkInsert error: ',err)})
           batchRows = []
         }
+        return
       })
       request.on('done', result => {
+        queryInterface.bulkInsert('parcelMaster',batchRows).catch((err) => {console.log('bulkInsert error: ',err)})
+        batchRows = []
         console.log('done', result)
         return
       })
@@ -39,7 +42,7 @@ module.exports = {
           ,[treatment_name]
           ,[scenario_id]
           ,[ww_class]
-          ,convert(varchar(max),geo_point) as geo_point
+          ,convert(nvarchar(150),geo_point) as geo_point
           ,[ww_flow]
           ,[init_nload_septic]
           ,[init_nload_fert]
@@ -65,6 +68,12 @@ module.exports = {
           ,[final_nload_removed]
         from CapeCodMA.parcelMaster
       `)
+      .catch((err) => {
+        console.log('query error: ',err)
+      })
+    })
+    .catch((err) => {
+      console.log('connection pool error: ',err)
     })
   },
 

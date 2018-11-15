@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     treatment_name: DataTypes.STRING,
     scenario_id: DataTypes.INTEGER,
     ww_class: DataTypes.TEXT,
-    geo_point: DataTypes.TEXT,
+    geo_point: DataTypes.GEOMETRY,
     ww_flow: DataTypes.FLOAT,
     init_nload_septic: DataTypes.FLOAT,
     init_nload_fert: DataTypes.FLOAT,

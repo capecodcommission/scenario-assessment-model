@@ -12,6 +12,9 @@ module.exports = {
       TOWN: {
         type: Sequelize.STRING
       },
+      SHAPE: {
+        type: Sequelize.GEOMETRY
+      },
       SHAPE_AREA: {
         type: Sequelize.REAL
       },
