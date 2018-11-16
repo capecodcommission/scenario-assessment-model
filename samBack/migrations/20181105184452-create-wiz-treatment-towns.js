@@ -2,6 +2,11 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('wiz_treatment_towns', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        type: Sequelize.INTEGER
+      },
       wtt_id: {
         type: Sequelize.INTEGER,
         primaryKey: true

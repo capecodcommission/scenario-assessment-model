@@ -2,12 +2,18 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Treatment_Wiz', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        type: Sequelize.INTEGER
+      },
       TreatmentID: {
         type: Sequelize.INTEGER,
         primaryKey: true
       },
       ScenarioID: {
         type: Sequelize.INTEGER,
+        primaryKey: true,
         allowNull: true
       },
       TreatmentType_Name: {

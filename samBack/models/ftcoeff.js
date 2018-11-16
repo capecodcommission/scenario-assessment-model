@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     freezeTableName: true
   });
   ftcoeff.associate = function(models) {
-    // associations can be defined here
+    // models.ftcoeff.hasMany(models.whatever)
   };
   return ftcoeff;
 };

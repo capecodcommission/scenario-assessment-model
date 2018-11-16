@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
     freezeTableName: true
   });
   Treatment_Wiz.associate = function(models) {
-    // associations can be defined here
+    models.Treatment_Wiz.belongsTo(models.Scenario_Wiz, {targetKey: 'ScenarioID', foreignKey: 'ScenarioID'})
   };
   return Treatment_Wiz;
 };

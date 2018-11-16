@@ -2,6 +2,11 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('TBL_NConversion_SQL', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        type: Sequelize.INTEGER
+      },
       EMBAY_ID: {
         type: Sequelize.STRING,
         primaryKey: true,

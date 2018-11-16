@@ -1,110 +1,116 @@
 var {Scenario} = require('../objects/Scenario')
 
-getScenario = function({id}) {
+getScenario = async function({ScenarioID}) {
 
   // Init new Scenario class
-  var a = new Scenario(id)
+  var a = new Scenario(ScenarioID)
+
+  var b = await a.getTreatmentsData()
+
+  a.treatments = JSON.stringify(b)
+
+  return a
 
   // Get data from scenario wiz
-  return a.getScenarioData().then((i) => {
+  // return a.getScenarioData().then((i) => {
 
-    // Fill relevant scenario properties with query results, initialize arrays
-    a.createdBy = i.recordset[0].CreatedBy
-    a.nReducAtt = i.recordset[0].Nload_Reduction_Attenuation
-    a.nReducFert = i.recordset[0].Nload_Reduction_Fert
-    a.nReducGW = i.recordset[0].Nload_Reduction_GW
-    a.nReducInEmbay = i.recordset[0].Nload_Reduction_InEmbay
-    a.nReducSeptic = i.recordset[0].Nload_Reduction_Septic
-    a.nReducSW = i.recordset[0].Nload_Reduction_SW
-    a.areaID = i.recordset[0].AreaID
-    a.areaName = i.recordset[0].AreaName
-    a.embayNCalc = i.recordset[0].Nload_Calculated_InEmbay
-    a.treatments = []
-    a.typeIDArray = []
-    a.techMatrixArray = []
-    a.treatmentIDCustomArray = []
-    a.subWatershedArray = []
-    a.subWaterIDArray = []
-    a.tblWinArray = []
-    a.ftCoeffArray = []
-    a.technologiesArray = []
-    a.fullTechMatrix = []
-    a.fullTechnologies = []
+  //   // Fill relevant scenario properties with query results, initialize arrays
+  //   a.createdBy = i.recordset[0].CreatedBy
+  //   a.nReducAtt = i.recordset[0].Nload_Reduction_Attenuation
+  //   a.nReducFert = i.recordset[0].Nload_Reduction_Fert
+  //   a.nReducGW = i.recordset[0].Nload_Reduction_GW
+  //   a.nReducInEmbay = i.recordset[0].Nload_Reduction_InEmbay
+  //   a.nReducSeptic = i.recordset[0].Nload_Reduction_Septic
+  //   a.nReducSW = i.recordset[0].Nload_Reduction_SW
+  //   a.areaID = i.recordset[0].AreaID
+  //   a.areaName = i.recordset[0].AreaName
+  //   a.embayNCalc = i.recordset[0].Nload_Calculated_InEmbay
+  //   a.treatments = []
+  //   a.typeIDArray = []
+  //   a.techMatrixArray = []
+  //   a.treatmentIDCustomArray = []
+  //   a.subWatershedArray = []
+  //   a.subWaterIDArray = []
+  //   a.tblWinArray = []
+  //   a.ftCoeffArray = []
+  //   a.technologiesArray = []
+  //   a.fullTechMatrix = []
+  //   a.fullTechnologies = []
 
-    // Get data from Treatment Wiz
-    return a.getTreatmentsData().then((j) => {
+  //   // Get data from Treatment Wiz
+  //   return a.getTreatmentsData().then((j) => {
 
-      // Loop through results of Treatment Wiz data, fill relevant arrays
-      j.recordset.map((k) => {
+  //     // Loop through results of Treatment Wiz data, fill relevant arrays
+  //     j.recordset.map((k) => {
 
-        a.treatmentIDCustomArray.push(k.TreatmentID)
-        a.typeIDArray.push(k.TreatmentType_ID)
-        a.treatments.push(k)
-      })
+  //       a.treatmentIDCustomArray.push(k.TreatmentID)
+  //       a.typeIDArray.push(k.TreatmentType_ID)
+  //       a.treatments.push(k)
+  //     })
 
-      // Get data from Tech Matrix
-      return a.getTechMatrixData().then((k) => {
+  //     // Get data from Tech Matrix
+  //     return a.getTechMatrixData().then((k) => {
         
-        // Loop through results from Tech Matrix data, fill relevant array
-        k.recordset.map((l) => {
-          a.techMatrixArray.push(l)
-        })
+  //       // Loop through results from Tech Matrix data, fill relevant array
+  //       k.recordset.map((l) => {
+  //         a.techMatrixArray.push(l)
+  //       })
 
-        return a.getSubwatershedsData().then((m) => {
+  //       return a.getSubwatershedsData().then((m) => {
 
-          m.recordset.map((n) => {
-            a.subWaterIDArray.push(n.SUBWATER_ID)
-            a.subWatershedArray.push({
-              TreatmentID: n.TreatmentID,
-              SUBWATER_ID: n.SUBWATER_ID
-            })
-          })
+  //         m.recordset.map((n) => {
+  //           a.subWaterIDArray.push(n.SUBWATER_ID)
+  //           a.subWatershedArray.push({
+  //             TreatmentID: n.TreatmentID,
+  //             SUBWATER_ID: n.SUBWATER_ID
+  //           })
+  //         })
 
-          return a.getWINData().then((o) => {
+  //         return a.getWINData().then((o) => {
 
-            o.recordset.map((p) => {
-              a.tblWinArray.push(p)
-            })
+  //           o.recordset.map((p) => {
+  //             a.tblWinArray.push(p)
+  //           })
 
-            return a.getFTCoeffData().then((q) => {
+  //           return a.getFTCoeffData().then((q) => {
 
-              q.recordset.map((r) => {
-                a.ftCoeffArray.push(r)
-              })
+  //             q.recordset.map((r) => {
+  //               a.ftCoeffArray.push(r)
+  //             })
 
-              return a.getTechnologiesData().then((s) => {
+  //             return a.getTechnologiesData().then((s) => {
 
-                s.recordset.map((t) => {
-                  a.technologiesArray.push(t)
-                })
+  //               s.recordset.map((t) => {
+  //                 a.technologiesArray.push(t)
+  //               })
 
-                return a.getNConversionData().then((u) => {
+  //               return a.getNConversionData().then((u) => {
 
-                  a.nConversion = u.recordset[0]
+  //                 a.nConversion = u.recordset[0]
 
-                  return a.getAllTechMatrixData().then((r) => {
+  //                 return a.getAllTechMatrixData().then((r) => {
 
-                    r.recordset.map((s) => {
-                      a.fullTechMatrix.push(s)
-                    })
+  //                   r.recordset.map((s) => {
+  //                     a.fullTechMatrix.push(s)
+  //                   })
 
-                    return a.getAllTechnologiesData().then((s) => {
+  //                   return a.getAllTechnologiesData().then((s) => {
 
-                      s.recordset.map((t) => {
-                        a.fullTechnologies.push(t)
-                      })
+  //                     s.recordset.map((t) => {
+  //                       a.fullTechnologies.push(t)
+  //                     })
 
-                      return a
-                    })
-                  })
-                })
-              })
-            })
-          })
-        })
-      })
-    })
-  })
+  //                     return a
+  //                   })
+  //                 })
+  //               })
+  //             })
+  //           })
+  //         })
+  //       })
+  //     })
+  //   })
+  // })
 }
 
 

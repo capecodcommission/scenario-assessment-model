@@ -9,11 +9,16 @@ module.exports = {
     password: process.env.DEVPASSWORD,
     dialect: 'postgresql',
     seederStorage: 'sequelize',
+    logging:false,
     pool: {
       max: 5,
       min: 0,
       idle: 20000,
       acquire: 20000
+    },
+    define: {
+      freezeTableName: true,
+      timestamps: false
     }
   },
   test: {

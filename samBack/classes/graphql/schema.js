@@ -104,7 +104,7 @@ type Town {
 }
 
 type Query {
-  getScenario(id: String): Scenario
+  getScenario(ScenarioID: String): Scenario
   getScores(id: String): Scores
   getSummary(id: String): Summary
 }

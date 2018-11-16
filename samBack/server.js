@@ -6,6 +6,7 @@ var {getScores} = require('./classes/queries/scoreQueries')
 var {getSummary} = require('./classes/queries/summaryQueries')
 var {insertSamVote} = require('./classes/mutations/voteMutations')
 var {schema} = require('./classes/graphql/schema')
+var db = require('./models/index')
 
 var root = {
   // Main data queries
@@ -25,7 +26,17 @@ app.use('/graphql', graphqlHTTP({
     rootValue: root,
     graphiql: true
 }));
-var server = app.listen(4000);
+
+let server = null
+
+db.sequelize.sync()
+.then(() => {
+  server = app.listen(4000);
+})
+.catch((e) => {
+  throw new Error(e)
+})
+// var server = app.listen(4000);
 
 const serverClose = function() {
 

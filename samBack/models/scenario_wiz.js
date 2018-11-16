@@ -52,10 +52,12 @@ module.exports = (sequelize, DataTypes) => {
     parcels_sewer: DataTypes.INTEGER,
     parcels_gwdp: DataTypes.INTEGER
   }, {
-    freezeTableName: true
+    freezeTableName: true,
+    timestamps: false
   });
   Scenario_Wiz.associate = function(models) {
-    // associations can be defined here
+    models.Scenario_Wiz.hasMany(models.Treatment_Wiz, {foreignKey: 'ScenarioID', sourceKey: 'ScenarioID'})
+    // models.Scenario_wiz.hasMany(models.parcelMaster, {sourceKey: 'scenario_id'})
   };
   return Scenario_Wiz;
 };
